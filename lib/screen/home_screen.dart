@@ -16,42 +16,6 @@ class HomeScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Status bar area
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    '01:13',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.signal_cellular_4_bar,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(Icons.wifi, color: Colors.white, size: 16),
-                      const SizedBox(width: 4),
-                      const Text(
-                        '5G+',
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(Icons.battery_full, color: Colors.white, size: 16),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
             // Main content
             Expanded(
               child: Padding(
