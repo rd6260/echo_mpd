@@ -14,7 +14,7 @@ class MpdRemoteService {
         host: "192.168.252.3",
         port: 6600,
       ),
-      onConnect: () => print("DEV: Connected to mpd"),
+      // onConnect: () => print("DEV: Connected to mpd"),
     );
   }
 

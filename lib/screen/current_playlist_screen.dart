@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dart_mpd/dart_mpd.dart';
 import 'package:echo_mpd/utils/album_art_helper.dart';
 import 'package:echo_mpd/utils/mpd_remote_service.dart';
@@ -27,34 +29,22 @@ class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
     List<MpdSong> playlist = await client.playlistid();
 
     for (var song in playlist) {
-      String? title;
-      String? artist;
+      String? title, album, artist;
       Duration? duration;
 
-      if (song.title != null) {
-        title = song.title!.join("/");
-      }
+      if (song.title != null) title = song.title!.join("/");
+      if (song.album != null) album = song.album!.join("/");
+      if (song.artist != null) artist = song.albumArtist!.join("/");
+      if (song.duration != null) duration = song.duration!;
 
-      if (song.artist != null) {
-        artist = song.albumArtist!.join("/");
-      }
-
-      if (song.duration != null) {
-        duration = song.duration!;
-      }
-
-      if (title == null || artist == null) continue;
-
-      String? art = await fetchAlbumArtUrl(artist, title);
-      print("TEST: $title | $artist | $art");
-
-      // playlistItems.add(
-      //   PlaylistItem(
-      //     title: title ?? "Not found",
-      //     artist: artist ?? "Not found",
-      //     duration: duration,
-      //   ),
-      // );
+      playlistItems.add(
+        PlaylistItem(
+          title: title,
+          album: album,
+          artist: artist,
+          duration: duration,
+        ),
+      );
     }
 
     // await Future.delayed(const Duration(seconds: 1));
@@ -134,10 +124,11 @@ class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
 
 class PlaylistItem {
   final String? title;
+  final String? album;
   final String? artist;
   final Duration? duration;
 
-  PlaylistItem({this.title, this.artist, this.duration});
+  PlaylistItem({this.title, this.album, this.artist, this.duration});
 }
 
 class PlaylistTile extends StatelessWidget {
@@ -173,22 +164,15 @@ class PlaylistTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                     color: const Color(0xFF3A3A3A),
                   ),
-                  child: (item.title != null || item.artist != null)
+                  child: (item.album != null && item.artist != null)
                       ? FutureBuilder(
-                          future: fetchAlbumArtUrl(item.artist!, item.title!),
+                          future: getAlbumArtPath(item.artist!, item.album!),
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Padding(
-                                padding: const EdgeInsets.all(4),
-                                child: CircularProgressIndicator(),
-                              );
-                            }
                             if (snapshot.hasData) {
                               return ClipRRect(
                                 borderRadius: BorderRadius.circular(4),
-                                child: Image.network(
-                                  snapshot.data!,
+                                child: Image.file(
+                                  File(snapshot.data!),
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return const Icon(
