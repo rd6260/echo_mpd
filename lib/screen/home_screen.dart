@@ -4,7 +4,6 @@ import 'package:echo_mpd/utils/album_art_helper.dart';
 import 'package:echo_mpd/utils/mpd_remote_service.dart';
 import 'package:echo_mpd/widgets/album_art_placeholder.dart';
 import 'package:flutter/material.dart';
-// import 'your_mpd_service.dart'; // Import your MpdRemoteService
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -130,10 +129,7 @@ class HomeScreen extends StatelessWidget {
             ),
 
             // Bottom music player island
-            _buildBottomMusicPlayer(),
-
-            // Bottom navigation
-            _buildBottomNavigation(),
+            BottomIslandWidget(),
           ],
         ),
       ),
@@ -225,192 +221,317 @@ class HomeScreen extends StatelessWidget {
       },
     );
   }
+}
 
-  Widget _buildBottomMusicPlayer() {
-    return ValueListenableBuilder(
-      valueListenable: MpdRemoteService.instance.currentSong,
-      builder: (context, currentSong, child) {
-        // Get the current song information
-        String? songTitle = currentSong?.title?.join("");
-        String? album = currentSong?.album?.join("");
-        String? artistName = currentSong?.artist?.join("/");
+class BottomIslandWidget extends StatefulWidget {
+  const BottomIslandWidget({super.key});
 
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.grey[900],
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              // Album art
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.grey[800],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: (artistName != null && album != null)
-                    ? FutureBuilder(
-                        future: getAlbumArtPath(artistName, album),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: Image.file(
-                                File(snapshot.data!),
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    AlbumArtPlaceholder(),
-                              ),
-                            );
-                          }
-                          return AlbumArtPlaceholder();
-                        },
-                      )
-                    : AlbumArtPlaceholder(),
-              ),
+  @override
+  State<BottomIslandWidget> createState() => _BottomIslandWidgetState();
+}
 
-              const SizedBox(width: 12),
+class _BottomIslandWidgetState extends State<BottomIslandWidget>
+    with TickerProviderStateMixin {
+  late TabController _tabController;
+  late ScrollController _scrollController;
+  int _selectedIndex = 0;
 
-              // Song info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      songTitle ?? "N/A",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      artistName ?? "N/A",
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
+  // Corner Radius
+  static const double cornerRadiusEnd = 14;
+  static const double cornerRadiusMiddle = 3;
 
-              // Control buttons
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      // Add previous track functionality
-                      // MpdRemoteService.instance.client.previous();
-                    },
-                    icon: const Icon(
-                      Icons.skip_previous,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
+  final List<String> _tabs = [
+    'HOME',
+    'FOLDERS',
+    'PLAYLISTS',
+    'TRACKS',
+    'ALBUMS',
+    'ARTISTS',
+    'ALBUMS',
+  ];
 
-                  const SizedBox(width: 8),
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: _tabs.length, vsync: this);
+    _scrollController = ScrollController();
+    _tabController.addListener(() {
+      setState(() {
+        _selectedIndex = _tabController.index;
+      });
+    });
+  }
 
-                  IconButton(
-                    onPressed: () {
-                      // Add play/pause functionality
-                      // MpdRemoteService.instance.client.pause();
-                    },
-                    icon: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFDC2626),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.play_arrow,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
 
-                  const SizedBox(width: 8),
+  void _centerTabInView(int index) {
+    // Calculate the position to center the selected tab
+    const double tabWidth = 90.0; // Approximate width of each tab
+    // const double padding = 20.0;
 
-                  IconButton(
-                    onPressed: () {
-                      // Add next track functionality
-                      // MpdRemoteService.instance.client.next();
-                    },
-                    icon: const Icon(
-                      Icons.skip_next,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
+    // Get the screen width to calculate center position
+    final screenWidth = MediaQuery.of(context).size.width;
+    final targetPosition =
+        (index * tabWidth) - (screenWidth / 2) + (tabWidth / 2);
+
+    // Ensure we don't scroll beyond the bounds
+    final maxScrollExtent = _scrollController.position.maxScrollExtent;
+    final clampedPosition = targetPosition.clamp(0.0, maxScrollExtent);
+
+    _scrollController.animateTo(
+      clampedPosition,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
 
-  Widget _buildBottomNavigation() {
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      height: 80,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          _buildNavItem('HOME', Icons.home, true),
-          _buildNavItem('FOLDERS', Icons.folder_outlined, false),
-          _buildNavItem('PLAYLISTS', Icons.playlist_play, false),
-          _buildNavItem('TRACKS', Icons.music_note, false),
-          _buildNavItem('ALBUMS', Icons.album, false),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.search, color: Colors.grey, size: 24),
+          // Music Player Control Section
+          GestureDetector(
+            onTap: () {
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => NewScreen()),
+              // );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey[900],
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(cornerRadiusEnd),
+                  topRight: Radius.circular(cornerRadiusEnd),
+                  bottomLeft: Radius.circular(cornerRadiusMiddle),
+                  bottomRight: Radius.circular(cornerRadiusMiddle),
+                ),
+              ),
+              child: ValueListenableBuilder(
+                valueListenable: MpdRemoteService.instance.currentSong,
+                builder: (context, currentSong, child) {
+                  // Get the current song information
+                  String? songTitle = currentSong?.title?.join("");
+                  String? album = currentSong?.album?.join("");
+                  String? artistName = currentSong?.artist?.join("/");
+
+                  return Row(
+                    children: [
+                      // Album _buildMusicPlayerart
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[800],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: (artistName != null && album != null)
+                            ? FutureBuilder(
+                                future: getAlbumArtPath(artistName, album),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    return ClipRRect(
+                                      borderRadius: BorderRadius.circular(4),
+                                      child: Image.file(
+                                        File(snapshot.data!),
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                const AlbumArtPlaceholder(),
+                                      ),
+                                    );
+                                  }
+                                  return const AlbumArtPlaceholder();
+                                },
+                              )
+                            : const AlbumArtPlaceholder(),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      // Song info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              songTitle ?? "N/A",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              artistName ?? "N/A",
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Control buttons
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              // Add previous track functionality
+                              // MpdRemoteService.instance.client.previous();
+                            },
+                            icon: const Icon(
+                              Icons.skip_previous,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+
+                          const SizedBox(width: 8),
+
+                          IconButton(
+                            onPressed: () {
+                              // Add play/pause functionality
+                              // MpdRemoteService.instance.client.pause();
+                            },
+                            icon: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFDC2626),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.play_arrow,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+
+                          const SizedBox(width: 8),
+
+                          IconButton(
+                            onPressed: () {
+                              // Add next track functionality
+                              // MpdRemoteService.instance.client.next();
+                            },
+                            icon: const Icon(
+                              Icons.skip_next,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
           ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.settings, color: Colors.grey, size: 24),
+          // spacing
+          SizedBox(height: 3),
+          // Bottom Navigation Section
+          Container(
+            height: 60,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1a1a1a),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(cornerRadiusMiddle),
+                topRight: Radius.circular(cornerRadiusMiddle),
+                bottomLeft: Radius.circular(cornerRadiusEnd),
+                bottomRight: Radius.circular(cornerRadiusEnd),
+              ),
+            ),
+            child: Row(
+              children: [
+                // Scrollable text buttons
+                Expanded(
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _tabs.length,
+                    itemBuilder: (context, index) {
+                      bool isSelected = _selectedIndex == index;
+                      return GestureDetector(
+                        onTap: () {
+                          _tabController.animateTo(index);
+                          _centerTabInView(index);
+                        },
+                        child: Container(
+                          height: double.maxFinite,
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            _tabs[index],
+                            style: TextStyle(
+                              color: isSelected ? Colors.red : Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                // Fixed icon buttons
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          // Handle search action
+                        },
+                        icon: const Icon(
+                          Icons.search,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          // Handle settings action
+                        },
+                        icon: const Icon(
+                          Icons.settings,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildNavItem(String label, IconData icon, bool isActive) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          icon,
-          color: isActive ? const Color(0xFFDC2626) : Colors.grey,
-          size: 24,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: isActive ? const Color(0xFFDC2626) : Colors.grey,
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
     );
   }
 }
