@@ -234,6 +234,8 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
     with TickerProviderStateMixin {
   late TabController _tabController;
   late ScrollController _scrollController;
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
   int _selectedIndex = 0;
 
   // Corner Radius
@@ -255,6 +257,17 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
     _scrollController = ScrollController();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
     _tabController.addListener(() {
       setState(() {
         _selectedIndex = _tabController.index;
@@ -266,6 +279,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
   void dispose() {
     _tabController.dispose();
     _scrollController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -299,157 +313,174 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
         children: [
           // Music Player Control Section
           GestureDetector(
+            onTapDown: (_) {
+              _animationController.forward();
+            },
+            onTapUp: (_) {
+              _animationController.reverse();
+            },
+            onTapCancel: () {
+              _animationController.reverse();
+            },
             onTap: () {
               // Navigator.push(
               //   context,
               //   MaterialPageRoute(builder: (context) => NewScreen()),
               // );
             },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.grey[900],
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(cornerRadiusEnd),
-                  topRight: Radius.circular(cornerRadiusEnd),
-                  bottomLeft: Radius.circular(cornerRadiusMiddle),
-                  bottomRight: Radius.circular(cornerRadiusMiddle),
-                ),
-              ),
-              child: ValueListenableBuilder(
-                valueListenable: MpdRemoteService.instance.currentSong,
-                builder: (context, currentSong, child) {
-                  // Get the current song information
-                  String? songTitle = currentSong?.title?.join("");
-                  String? album = currentSong?.album?.join("");
-                  String? artistName = currentSong?.artist?.join("/");
-
-                  return Row(
-                    children: [
-                      // Album _buildMusicPlayerart
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[800],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: (artistName != null && album != null)
-                            ? FutureBuilder(
-                                future: getAlbumArtPath(artistName, album),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    return ClipRRect(
-                                      borderRadius: BorderRadius.circular(4),
-                                      child: Image.file(
-                                        File(snapshot.data!),
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                const AlbumArtPlaceholder(),
-                                      ),
-                                    );
-                                  }
-                                  return const AlbumArtPlaceholder();
-                                },
-                              )
-                            : const AlbumArtPlaceholder(),
+            child: AnimatedBuilder(
+              animation: _scaleAnimation,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _scaleAnimation.value,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[900],
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(cornerRadiusEnd),
+                        topRight: Radius.circular(cornerRadiusEnd),
+                        bottomLeft: Radius.circular(cornerRadiusMiddle),
+                        bottomRight: Radius.circular(cornerRadiusMiddle),
                       ),
+                    ),
+                    child: ValueListenableBuilder(
+                      valueListenable: MpdRemoteService.instance.currentSong,
+                      builder: (context, currentSong, child) {
+                        // Get the current song information
+                        String? songTitle = currentSong?.title?.join("");
+                        String? album = currentSong?.album?.join("");
+                        String? artistName = currentSong?.artist?.join("/");
 
-                      const SizedBox(width: 12),
-
-                      // Song info
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
+                        return Row(
                           children: [
-                            Text(
-                              songTitle ?? "N/A",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                            // Album _buildMusicPlayerart
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[800],
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              child: (artistName != null && album != null)
+                                  ? FutureBuilder(
+                                      future: getAlbumArtPath(artistName, album),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          return ClipRRect(
+                                            borderRadius: BorderRadius.circular(4),
+                                            child: Image.file(
+                                              File(snapshot.data!),
+                                              fit: BoxFit.cover,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) =>
+                                                      const AlbumArtPlaceholder(),
+                                            ),
+                                          );
+                                        }
+                                        return const AlbumArtPlaceholder();
+                                      },
+                                    )
+                                  : const AlbumArtPlaceholder(),
                             ),
-                            Text(
-                              artistName ?? "N/A",
-                              style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 12,
+
+                            const SizedBox(width: 12),
+
+                            // Song info
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    songTitle ?? "N/A",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    artistName ?? "N/A",
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            ),
+
+                            // Control buttons
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    // Add previous track functionality
+                                    // MpdRemoteService.instance.client.previous();
+                                  },
+                                  icon: const Icon(
+                                    Icons.skip_previous,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+
+                                const SizedBox(width: 8),
+
+                                IconButton(
+                                  onPressed: () {
+                                    // Add play/pause functionality
+                                    // MpdRemoteService.instance.client.pause();
+                                  },
+                                  icon: Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFDC2626),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.play_arrow,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+
+                                const SizedBox(width: 8),
+
+                                IconButton(
+                                  onPressed: () {
+                                    // Add next track functionality
+                                    // MpdRemoteService.instance.client.next();
+                                  },
+                                  icon: const Icon(
+                                    Icons.skip_next,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+                              ],
                             ),
                           ],
-                        ),
-                      ),
-
-                      // Control buttons
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              // Add previous track functionality
-                              // MpdRemoteService.instance.client.previous();
-                            },
-                            icon: const Icon(
-                              Icons.skip_previous,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                          ),
-
-                          const SizedBox(width: 8),
-
-                          IconButton(
-                            onPressed: () {
-                              // Add play/pause functionality
-                              // MpdRemoteService.instance.client.pause();
-                            },
-                            icon: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFDC2626),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.play_arrow,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                          ),
-
-                          const SizedBox(width: 8),
-
-                          IconButton(
-                            onPressed: () {
-                              // Add next track functionality
-                              // MpdRemoteService.instance.client.next();
-                            },
-                            icon: const Icon(
-                              Icons.skip_next,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
-              ),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
           ),
           // spacing
