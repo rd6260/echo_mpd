@@ -25,7 +25,7 @@ class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
 
   // Empty method for you to implement later
   Future<void> fetchPlaylistDetails() async {
-    MpdClient client = MpdRemoteService.instance.getCliet();
+    MpdClient client = MpdRemoteService.instance.client;
     List<MpdSong> playlist = await client.playlistid();
 
     for (var song in playlist) {
