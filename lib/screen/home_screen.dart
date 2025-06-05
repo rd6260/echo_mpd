@@ -1,448 +1,452 @@
-import 'package:echo_mpd/utils/mpd_remote_service.dart';
-import 'package:flutter/material.dart';
+import 'dart:io';
 
-class HomeScreen extends StatefulWidget {
+import 'package:echo_mpd/utils/album_art_helper.dart';
+import 'package:echo_mpd/utils/mpd_remote_service.dart';
+import 'package:echo_mpd/widgets/album_art_placeholder.dart';
+import 'package:flutter/material.dart';
+// import 'your_mpd_service.dart'; // Import your MpdRemoteService
+
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
-  bool _isPlaying = false;
-
-  @override
   Widget build(BuildContext context) {
-    MpdRemoteService.instance;
     return Scaffold(
-      backgroundColor: Color(0xFF1A1A1A),
-      body: Column(
-        children: [
-          Expanded(child: _buildCurrentScreen()),
-          _buildNowPlayingBar(),
-          _buildBottomNavigationBar(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCurrentScreen() {
-    switch (_currentIndex) {
-      case 0:
-        return _buildHomeScreen();
-      case 1:
-        return _buildFoldersScreen();
-      case 2:
-        return _buildPlaylistsScreen();
-      case 3:
-        return _buildTracksScreen();
-      case 4:
-        return _buildAlbumsScreen();
-      default:
-        return _buildHomeScreen();
-    }
-  }
-
-  Widget _buildHomeScreen() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 40),
-          Text(
-            'Home',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          SizedBox(height: 30),
-          Text(
-            'RECENTLY PLAYED',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Colors.white70,
-              letterSpacing: 1.2,
-            ),
-          ),
-          SizedBox(height: 16),
-          SizedBox(
-            height: 120,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                _buildRecentlyPlayedItem(
-                  title: 'Tracks',
-                  subtitle: '1457 Tracks',
-                  color: Color(0xFF2D2D2D),
-                  icon: Icons.music_note,
-                ),
-                _buildRecentlyPlayedItem(
-                  title: 'Favorite Tracks',
-                  subtitle: '2 Tracks',
-                  color: Color(0xFFD32F2F),
-                  icon: Icons.favorite,
-                ),
-                _buildRecentlyPlayedItem(
-                  title: 'Adventure Time: C...',
-                  subtitle: 'Adventure Time',
-                  color: Color(0xFFE0E0E0),
-                  isImage: true,
-                ),
-                _buildRecentlyPlayedItem(
-                  title: 'Sunflower Seed',
-                  subtitle: 'Bryce Vine',
-                  color: Color(0xFFFFC107),
-                  icon: Icons.wb_sunny,
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 40),
-          Text(
-            'FAVORITES',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Colors.white70,
-              letterSpacing: 1.2,
-            ),
-          ),
-          SizedBox(height: 16),
-          Container(
-            height: 200,
-            width: 200,
-            decoration: BoxDecoration(
-              color: Color(0xFFD32F2F),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0xFFD32F2F).withValues(alpha: 0.3),
-                  blurRadius: 20,
-                  offset: Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '2',
-                  style: TextStyle(
-                    fontSize: 64,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  'Tracks',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRecentlyPlayedItem({
-    required String title,
-    required String subtitle,
-    required Color color,
-    IconData? icon,
-    bool isImage = false,
-  }) {
-    return Container(
-      width: 120,
-      margin: EdgeInsets.only(right: 16),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-              ),
-              child: Center(
-                child: isImage
-                    ? Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Colors.orange.shade200,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            'AT',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange.shade800,
-                            ),
-                          ),
-                        ),
-                      )
-                    : Icon(
-                        icon ?? Icons.music_note,
-                        size: 40,
-                        color: color == Color(0xFFE0E0E0)
-                            ? Colors.black
-                            : Colors.white,
-                      ),
-              ),
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: color == Color(0xFFE0E0E0)
-                        ? Colors.black
-                        : Colors.white,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color:
-                        (color == Color(0xFFE0E0E0)
-                                ? Colors.black
-                                : Colors.white)
-                            .withValues(alpha: 0.7),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNowPlayingBar() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF2D2D2D), Color(0xFF3D3D3D)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(12),
-        child: Row(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Column(
           children: [
+            // Status bar area
             Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                // image: DecorationImage(
-                //   image: AssetImage(
-                //     'assets/album_art.jpg',
-                //   ), // You'll need to add this asset
-                //   fit: BoxFit.cover,
-                // ),
-                color: Color(0xFF4A90E2), // Fallback color
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Color(0xFF4A90E2),
-                ),
-                child: Icon(Icons.music_note, color: Colors.white, size: 24),
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Hypotheticals',
+                  const Text(
+                    '01:13',
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
                       color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  SizedBox(height: 2),
-                  Text(
-                    'Fran Vasilić',
-                    style: TextStyle(fontSize: 14, color: Colors.white70),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.signal_cellular_4_bar,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(Icons.wifi, color: Colors.white, size: 16),
+                      const SizedBox(width: 4),
+                      const Text(
+                        '5G+',
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(Icons.battery_full, color: Colors.white, size: 16),
+                    ],
                   ),
                 ],
               ),
             ),
-            _buildControlButton(Icons.skip_previous, 24),
-            SizedBox(width: 8),
-            _buildPlayPauseButton(),
-            SizedBox(width: 8),
-            _buildControlButton(Icons.skip_next, 24),
+
+            // Main content
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Home title
+                    const Text(
+                      'Home',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Recently Played section
+                    const Text(
+                      'RECENTLY PLAYED',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Recently played grid
+                    SizedBox(
+                      height: 120,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          _buildRecentlyPlayedItem(
+                            'Kendrick Lamar',
+                            '6 Tracks',
+                            Colors.white,
+                          ),
+                          _buildRecentlyPlayedItem(
+                            'Tracks',
+                            '1457 Tracks',
+                            Colors.white,
+                          ),
+                          _buildRecentlyPlayedItem(
+                            'Favorite Tracks',
+                            '2 Tracks',
+                            const Color(0xFFDC2626), // Red accent
+                          ),
+                          _buildRecentlyPlayedItem(
+                            'Adventure Time',
+                            'Adventure Time',
+                            Colors.blue,
+                            hasImage: true,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Favorites section
+                    const Text(
+                      'FAVORITES',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Favorites card
+                    Container(
+                      width: 160,
+                      height: 160,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFDC2626),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '2',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Tracks',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Bottom music player island
+            _buildBottomMusicPlayer(),
+
+            // Bottom navigation
+            _buildBottomNavigation(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildControlButton(IconData icon, double size) {
+  Widget _buildRecentlyPlayedItem(
+    String title,
+    String subtitle,
+    Color dotColor, {
+    bool hasImage = false,
+  }) {
     return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        shape: BoxShape.circle,
-      ),
-      child: IconButton(
-        icon: Icon(icon, color: Colors.white, size: size),
-        onPressed: () {},
-        padding: EdgeInsets.zero,
+      width: 100,
+      margin: const EdgeInsets.only(right: 16),
+      child: Column(
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.grey[900],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: hasImage
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.blue, Colors.cyan],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.play_circle_fill,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                    ),
+                  )
+                : Center(
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: dotColor, width: 2),
+                      ),
+                      child: _buildDotPattern(dotColor),
+                    ),
+                  ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            subtitle,
+            style: const TextStyle(color: Colors.grey, fontSize: 10),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildPlayPauseButton() {
+  Widget _buildDotPattern(Color color) {
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 6,
+        mainAxisSpacing: 2,
+        crossAxisSpacing: 2,
+      ),
+      itemCount: 36,
+      itemBuilder: (context, index) {
+        return Container(
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        );
+      },
+    );
+  }
+
+  Widget _buildBottomMusicPlayer() {
+    return ValueListenableBuilder(
+      valueListenable: MpdRemoteService.instance.currentSong,
+      builder: (context, currentSong, child) {
+        // Get the current song information
+        String? songTitle = currentSong?.title?.join("");
+        String? album = currentSong?.album?.join("");
+        String? artistName = currentSong?.artist?.join("/");
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.grey[900],
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: [
+              // Album art
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.grey[800],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: (artistName != null && album != null)
+                    ? FutureBuilder(
+                        future: getAlbumArtPath(artistName, album),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: Image.file(
+                                File(snapshot.data!),
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    AlbumArtPlaceholder(),
+                              ),
+                            );
+                          }
+                          return AlbumArtPlaceholder();
+                        },
+                      )
+                    : AlbumArtPlaceholder(),
+              ),
+
+              const SizedBox(width: 12),
+
+              // Song info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      songTitle ?? "N/A",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      artistName ?? "N/A",
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+
+              // Control buttons
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      // Add previous track functionality
+                      // MpdRemoteService.instance.client.previous();
+                    },
+                    icon: const Icon(
+                      Icons.skip_previous,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  IconButton(
+                    onPressed: () {
+                      // Add play/pause functionality
+                      // MpdRemoteService.instance.client.pause();
+                    },
+                    icon: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFDC2626),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.play_arrow,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  IconButton(
+                    onPressed: () {
+                      // Add next track functionality
+                      // MpdRemoteService.instance.client.next();
+                    },
+                    icon: const Icon(
+                      Icons.skip_next,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBottomNavigation() {
     return Container(
-      width: 45,
-      height: 45,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFE91E63), Color(0xFFAD1457)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Color(0xFFE91E63).withValues(alpha: 0.4),
-            blurRadius: 12,
-            offset: Offset(0, 4),
+      height: 80,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildNavItem('HOME', Icons.home, true),
+          _buildNavItem('FOLDERS', Icons.folder_outlined, false),
+          _buildNavItem('PLAYLISTS', Icons.playlist_play, false),
+          _buildNavItem('TRACKS', Icons.music_note, false),
+          _buildNavItem('ALBUMS', Icons.album, false),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.search, color: Colors.grey, size: 24),
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.settings, color: Colors.grey, size: 24),
           ),
         ],
       ),
-      child: IconButton(
-        icon: Icon(
-          _isPlaying ? Icons.pause : Icons.play_arrow,
-          color: Colors.white,
+    );
+  }
+
+  Widget _buildNavItem(String label, IconData icon, bool isActive) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          icon,
+          color: isActive ? const Color(0xFFDC2626) : Colors.grey,
           size: 24,
         ),
-        onPressed: () {
-          setState(() {
-            _isPlaying = !_isPlaying;
-          });
-        },
-        padding: EdgeInsets.zero,
-      ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Color(0xFF1A1A1A),
-        border: Border(
-          top: BorderSide(
-            color: Colors.white.withValues(alpha: 0.1),
-            width: 0.5,
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: isActive ? const Color(0xFFDC2626) : Colors.grey,
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
           ),
         ),
-      ),
-      child: BottomNavigationBar(
-        backgroundColor: Colors.transparent,
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        selectedItemColor: Color(0xFFE91E63),
-        unselectedItemColor: Colors.white54,
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        elevation: 0,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'HOME'),
-          BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'FOLDERS'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.playlist_play),
-            label: 'PLAYLISTS',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.music_note),
-            label: 'TRACKS',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.album), label: 'ALBUMS'),
-        ],
-      ),
-    );
-  }
-
-  // Placeholder screens for other tabs
-  Widget _buildFoldersScreen() {
-    return Center(
-      child: Text(
-        'Folders',
-        style: TextStyle(fontSize: 24, color: Colors.white),
-      ),
-    );
-  }
-
-  Widget _buildPlaylistsScreen() {
-    return Center(
-      child: Text(
-        'Playlists',
-        style: TextStyle(fontSize: 24, color: Colors.white),
-      ),
-    );
-  }
-
-  Widget _buildTracksScreen() {
-    return Center(
-      child: Text(
-        'Tracks',
-        style: TextStyle(fontSize: 24, color: Colors.white),
-      ),
-    );
-  }
-
-  Widget _buildAlbumsScreen() {
-    return Center(
-      child: Text(
-        'Albums',
-        style: TextStyle(fontSize: 24, color: Colors.white),
-      ),
+      ],
     );
   }
 }

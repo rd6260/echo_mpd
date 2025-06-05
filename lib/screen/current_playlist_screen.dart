@@ -174,13 +174,8 @@ class PlaylistTile extends StatelessWidget {
                                 child: Image.file(
                                   File(snapshot.data!),
                                   fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return const Icon(
-                                      Icons.music_note,
-                                      color: Colors.white54,
-                                      size: 24,
-                                    );
-                                  },
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      AlbumArtPlaceholder(),
                                 ),
                               );
                             }
