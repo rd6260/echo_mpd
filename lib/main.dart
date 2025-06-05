@@ -1,3 +1,4 @@
+import 'package:echo_mpd/screen/current_playlist_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,17 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const HomeScreen(),
+      home: const CurrentPlaylistScreen(),
     );
   }
 }
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text("Hello; World!")));
-  }
-}
-
