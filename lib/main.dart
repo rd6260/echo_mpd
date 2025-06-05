@@ -1,4 +1,4 @@
-import 'package:echo_mpd/utils/mpd_connection_gate_screen.dart';
+import 'package:echo_mpd/screen/mpd_connection_gate_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
