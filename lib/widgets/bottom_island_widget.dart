@@ -72,6 +72,20 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
       curve: Curves.easeInOut,
     );
   }
+  /// Action when the play/pause track button is pressed
+  void onPlayPause() {}
+
+  /// Action when the previous track button is pressed
+  void onPrevious() {}
+
+  /// Action when the next track button is pressed
+  void onNext() {}
+
+  /// Action when the settings button is pressed
+  void onSettings() {}
+
+  /// Action when the search button is pressed
+  void onSearch() {}
 
   @override
   Widget build(BuildContext context) {
@@ -198,10 +212,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
-                                  onPressed: () {
-                                    // Add previous track functionality
-                                    // MpdRemoteService.instance.client.previous();
-                                  },
+                                  onPressed: onPrevious,
                                   icon: const Icon(
                                     Icons.skip_previous,
                                     color: Colors.white,
@@ -214,10 +225,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                                 const SizedBox(width: 8),
 
                                 IconButton(
-                                  onPressed: () {
-                                    // Add play/pause functionality
-                                    // MpdRemoteService.instance.client.pause();
-                                  },
+                                  onPressed: onPlayPause,
                                   icon: Container(
                                     width: 32,
                                     height: 32,
@@ -238,10 +246,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                                 const SizedBox(width: 8),
 
                                 IconButton(
-                                  onPressed: () {
-                                    // Add next track functionality
-                                    // MpdRemoteService.instance.client.next();
-                                  },
+                                  onPressed: onNext,
                                   icon: const Icon(
                                     Icons.skip_next,
                                     color: Colors.white,
@@ -314,9 +319,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                   child: Row(
                     children: [
                       IconButton(
-                        onPressed: () {
-                          // Handle search action
-                        },
+                        onPressed: onSearch,
                         icon: const Icon(
                           Icons.search,
                           color: Colors.white,
@@ -324,9 +327,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                         ),
                       ),
                       IconButton(
-                        onPressed: () {
-                          // Handle settings action
-                        },
+                        onPressed: onSettings,
                         icon: const Icon(
                           Icons.settings,
                           color: Colors.white,
