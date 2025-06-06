@@ -133,7 +133,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                         // Get the current song information
                         String? songTitle = currentSong?.title?.join("");
                         String? album = currentSong?.album?.join("");
-                        String? artistName = currentSong?.artist?.join("/");
+                        String? albumArtistName = currentSong?.albumArtist?.join("/");
 
                         return Row(
                           children: [
@@ -145,10 +145,10 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                                 color: Colors.grey[800],
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: (artistName != null && album != null)
+                              child: (albumArtistName != null && album != null)
                                   ? FutureBuilder(
                                       future: getAlbumArtPath(
-                                        artistName,
+                                        albumArtistName,
                                         album,
                                       ),
                                       builder: (context, snapshot) {
@@ -195,7 +195,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   Text(
-                                    artistName ?? "N/A",
+                                    albumArtistName ?? "N/A",
                                     style: const TextStyle(
                                       color: Colors.grey,
                                       fontSize: 12,
@@ -295,6 +295,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                           _tabController.animateTo(index);
                           _centerTabInView(index);
                         },
+                        behavior: HitTestBehavior.translucent,
                         child: Container(
                           height: double.maxFinite,
                           alignment: Alignment.center,

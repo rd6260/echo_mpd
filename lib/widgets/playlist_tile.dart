@@ -1,17 +1,17 @@
 import 'dart:io';
-import 'package:echo_mpd/types/playlist_item.dart';
+import 'package:dart_mpd/dart_mpd.dart';
 import 'package:echo_mpd/utils/album_art_helper.dart';
 import 'package:echo_mpd/widgets/album_art_placeholder.dart';
 import 'package:flutter/material.dart';
 
 class PlaylistTile extends StatelessWidget {
-  final PlaylistItem item;
+  final MpdSong song;
   final VoidCallback onTap;
   final VoidCallback onMorePressed;
 
   const PlaylistTile({
     super.key,
-    required this.item,
+    required this.song,
     required this.onTap,
     required this.onMorePressed,
   });
@@ -37,9 +37,9 @@ class PlaylistTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                     color: const Color(0xFF3A3A3A),
                   ),
-                  child: (item.album != null && item.artist != null)
+                  child: (song.album != null && song.albumArtist != null)
                       ? FutureBuilder(
-                          future: getAlbumArtPath(item.artist!, item.album!),
+                          future: getAlbumArtPath(song.albumArtist!.join("/"), song.album!.join("/")),
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               return ClipRRect(
@@ -64,7 +64,7 @@ class PlaylistTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.title ?? "",
+                        song.title?.join("/") ?? "",
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -75,7 +75,7 @@ class PlaylistTile extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        item.artist ?? "",
+                        song.artist?.join("/") ?? "",
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 14,
@@ -87,11 +87,11 @@ class PlaylistTile extends StatelessWidget {
                   ),
                 ),
                 // Duration (if available)
-                if (item.duration != null)
+                if (song.duration != null)
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: Text(
-                      _formatDuration(item.duration!),
+                      _formatDuration(song.duration!),
                       style: const TextStyle(
                         color: Colors.white54,
                         fontSize: 12,

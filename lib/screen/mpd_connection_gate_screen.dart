@@ -220,219 +220,221 @@ class _MpdConnectionGateScreenState extends State<MpdConnectionGateScreen>
                     ),
                   ],
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Header
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1A1A1A),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: const Color(0xFF333333),
-                              width: 1,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.settings_input_antenna,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'MPD Connection',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                'Configure your Music Player Daemon',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.6),
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Form
-                    Form(
-                      key: _formKey,
-                      child: Column(
+                child: Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header
+                      Row(
                         children: [
-                          // IP Address Field
                           Container(
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: const Color(0xFF1A1A1A),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: const Color(0xFF333333),
+                                width: 1,
                               ),
                             ),
-                            child: TextFormField(
-                              controller: _ipController,
-                              style: const TextStyle(color: Colors.white),
-                              decoration: InputDecoration(
-                                labelText: 'IP Address',
-                                labelStyle: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.6),
-                                ),
-                                hintText: '192.168.1.100',
-                                hintStyle: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.3),
-                                ),
-                                prefixIcon: Icon(
-                                  Icons.router,
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                ),
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.all(16),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Please enter IP address';
-                                }
-                                return null;
-                              },
+                            child: const Icon(
+                              Icons.settings_input_antenna,
+                              color: Colors.white,
+                              size: 24,
                             ),
                           ),
-
-                          const SizedBox(height: 16),
-
-                          // Port Field
-                          Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF1A1A1A),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: const Color(0xFF333333),
-                              ),
-                            ),
-                            child: TextFormField(
-                              controller: _portController,
-                              style: const TextStyle(color: Colors.white),
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: 'Port',
-                                labelStyle: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.6),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'MPD Connection',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                                hintText: '6600',
-                                hintStyle: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.3),
+                                Text(
+                                  'Configure your Music Player Daemon',
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.6),
+                                    fontSize: 14,
+                                  ),
                                 ),
-                                prefixIcon: Icon(
-                                  Icons.lan,
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                ),
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.all(16),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Please enter port number';
-                                }
-                                final port = int.tryParse(value.trim());
-                                if (port == null || port < 1 || port > 65535) {
-                                  return 'Please enter a valid port (1-65535)';
-                                }
-                                return null;
-                              },
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextButton(
-                            onPressed: _isConnecting
-                                ? null
-                                : () {
-                                    Navigator.of(context).pop();
-                                  },
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
+                  
+                      const SizedBox(height: 24),
+                  
+                      // Form
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            // IP Address Field
+                            Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1A1A1A),
                                 borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(
+                                border: Border.all(
                                   color: const Color(0xFF333333),
                                 ),
                               ),
+                              child: TextFormField(
+                                controller: _ipController,
+                                style: const TextStyle(color: Colors.white),
+                                decoration: InputDecoration(
+                                  labelText: 'IP Address',
+                                  labelStyle: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.6),
+                                  ),
+                                  hintText: '192.168.1.100',
+                                  hintStyle: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.3),
+                                  ),
+                                  prefixIcon: Icon(
+                                    Icons.router,
+                                    color: Colors.white.withValues(alpha: 0.7),
+                                  ),
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.all(16),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Please enter IP address';
+                                  }
+                                  return null;
+                                },
+                              ),
                             ),
-                            child: Text(
-                              'Cancel',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.6),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                  
+                            const SizedBox(height: 16),
+                  
+                            // Port Field
+                            Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1A1A1A),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color(0xFF333333),
+                                ),
+                              ),
+                              child: TextFormField(
+                                controller: _portController,
+                                style: const TextStyle(color: Colors.white),
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  labelText: 'Port',
+                                  labelStyle: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.6),
+                                  ),
+                                  hintText: '6600',
+                                  hintStyle: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.3),
+                                  ),
+                                  prefixIcon: Icon(
+                                    Icons.lan,
+                                    color: Colors.white.withValues(alpha: 0.7),
+                                  ),
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.all(16),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Please enter port number';
+                                  }
+                                  final port = int.tryParse(value.trim());
+                                  if (port == null || port < 1 || port > 65535) {
+                                    return 'Please enter a valid port (1-65535)';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  
+                      const SizedBox(height: 24),
+                  
+                      // Buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextButton(
+                              onPressed: _isConnecting
+                                  ? null
+                                  : () {
+                                      Navigator.of(context).pop();
+                                    },
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(
+                                    color: const Color(0xFF333333),
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: _isConnecting
-                                ? null
-                                : () async {
-                                    Navigator.of(context).pop();
-                                    await _attemptConnection();
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.black,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                  
+                          const SizedBox(width: 12),
+                  
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: _isConnecting
+                                  ? null
+                                  : () async {
+                                      Navigator.of(context).pop();
+                                      await _attemptConnection();
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 0,
                               ),
-                              elevation: 0,
-                            ),
-                            child: _isConnecting
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.black,
+                              child: _isConnecting
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.black,
+                                        ),
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Connect',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                  )
-                                : const Text(
-                                    'Connect',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );

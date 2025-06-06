@@ -8,7 +8,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       body:
-          Expanded(
+          SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -23,9 +23,9 @@ class HomeScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
+            
                   const SizedBox(height: 32),
-
+            
                   // Recently Played section
                   const Text(
                     'RECENTLY PLAYED',
@@ -36,9 +36,9 @@ class HomeScreen extends StatelessWidget {
                       letterSpacing: 1.2,
                     ),
                   ),
-
+            
                   const SizedBox(height: 16),
-
+            
                   // Recently played grid
                   SizedBox(
                     height: 120,
@@ -69,9 +69,9 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-
+            
                   const SizedBox(height: 32),
-
+            
                   // Favorites section
                   const Text(
                     'FAVORITES',
@@ -82,9 +82,9 @@ class HomeScreen extends StatelessWidget {
                       letterSpacing: 1.2,
                     ),
                   ),
-
+            
                   const SizedBox(height: 16),
-
+            
                   // Favorites card
                   Container(
                     width: 160,

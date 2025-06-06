@@ -1,4 +1,4 @@
-import 'package:echo_mpd/types/playlist_item.dart';
+import 'package:dart_mpd/dart_mpd.dart';
 import 'package:echo_mpd/utils/mpd_remote_service.dart';
 import 'package:echo_mpd/widgets/playlist_tile.dart';
 import 'package:flutter/material.dart';
@@ -62,31 +62,31 @@ class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
     );
   }
 
-  Widget _buildPlaylist(List<PlaylistItem> queue) {
-    return queue.isEmpty
-        ? const Center(
-            child: Text(
-              'No songs in playlist',
-              style: TextStyle(color: Colors.white54, fontSize: 16),
-            ),
-          )
-        : Expanded(
-          child: ListView.builder(
-            padding: EdgeInsets.only(bottom: 200),
-            itemCount: queue.length,
-            itemBuilder: (context, index) {
-              final item = queue[index];
-              return PlaylistTile(
-                item: item,
-                onTap: () {
-                  // Handle song tap
-                },
-                onMorePressed: () {
-                  // Handle more options
-                },
-              );
+  Widget _buildPlaylist(List<MpdSong> queue) {
+    if (queue.isEmpty) {
+      return const Center(
+        child: Text(
+          'No songs in playlist',
+          style: TextStyle(color: Colors.white54, fontSize: 16),
+        ),
+      );
+    } else {
+      return ListView.builder(
+        padding: EdgeInsets.only(bottom: 200),
+        itemCount: queue.length,
+        itemBuilder: (context, index) {
+          final song = queue[index];
+          return PlaylistTile(
+            song: song,
+            onTap: () {
+              // Handle song tap
             },
-          ),
-        );
+            onMorePressed: () {
+              // Handle more options
+            },
+          );
+        },
+      );
+    }
   }
 }

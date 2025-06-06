@@ -1,5 +1,4 @@
 import 'package:dart_mpd/dart_mpd.dart';
-import 'package:echo_mpd/types/playlist_item.dart';
 import 'package:flutter/foundation.dart';
 
 class MpdRemoteService {
@@ -15,7 +14,7 @@ class MpdRemoteService {
   int? _port;
   final ValueNotifier<MpdSong?> currentSong = ValueNotifier(null);
   final ValueNotifier<bool> isConnected = ValueNotifier(false);
-  final ValueNotifier<List<PlaylistItem>> currentPlaylist = ValueNotifier([]);
+  final ValueNotifier<List<MpdSong>> currentPlaylist = ValueNotifier([]);
 
   // Initialize method to be called from your starting screen
   Future<void> initialize({required String host, required int port}) async {
@@ -148,20 +147,8 @@ class MpdRemoteService {
 
   /// Update the current playlist (queue)
   void updateCurrentPlaylist() async {
-    List<PlaylistItem> newPlaylist = [];
     List<MpdSong> queue = await _client!.playlistid();
-
-    for (var song in queue) {
-      newPlaylist.add(
-        PlaylistItem(
-          album: song.album?.join("/"),
-          artist: song.artist?.join("/"),
-          duration: song.duration,
-          title: song.title?.join("/"),
-        ),
-      );
-    }
-    currentPlaylist.value = newPlaylist;
+    currentPlaylist.value = queue;
   }
 
   // Cleanup method (call this when app is disposed)
