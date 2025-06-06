@@ -1,8 +1,6 @@
-import 'dart:io';
-import 'package:dart_mpd/dart_mpd.dart';
-import 'package:echo_mpd/utils/album_art_helper.dart';
+import 'package:echo_mpd/types/playlist_item.dart';
 import 'package:echo_mpd/utils/mpd_remote_service.dart';
-import 'package:echo_mpd/widgets/album_art_placeholder.dart';
+import 'package:echo_mpd/widgets/playlist_tile.dart';
 import 'package:flutter/material.dart';
 
 class CurrentPlaylistScreen extends StatefulWidget {
@@ -13,44 +11,44 @@ class CurrentPlaylistScreen extends StatefulWidget {
 }
 
 class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
-  List<PlaylistItem> playlistItems = [];
+  // List<PlaylistItem> playlistItems = [];
   bool isLoading = true;
 
-  @override
-  void initState() {
-    super.initState();
-    fetchPlaylistDetails();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   fetchPlaylistDetails();
+  // }
 
   // Empty method for you to implement later
-  Future<void> fetchPlaylistDetails() async {
-    MpdClient client = MpdRemoteService.instance.client;
-    List<MpdSong> playlist = await client.playlistid();
+  // Future<void> fetchPlaylistDetails() async {
+  //   MpdClient client = MpdRemoteService.instance.client;
+  //   List<MpdSong> playlist = await client.playlistid();
 
-    for (var song in playlist) {
-      String? title, album, artist;
-      Duration? duration;
+  //   for (var song in playlist) {
+  //     String? title, album, artist;
+  //     Duration? duration;
 
-      if (song.title != null) title = song.title!.join("/");
-      if (song.album != null) album = song.album!.join("/");
-      if (song.artist != null) artist = song.albumArtist!.join("/");
-      if (song.duration != null) duration = song.duration!;
+  //     if (song.title != null) title = song.title!.join("/");
+  //     if (song.album != null) album = song.album!.join("/");
+  //     if (song.artist != null) artist = song.albumArtist!.join("/");
+  //     if (song.duration != null) duration = song.duration!;
 
-      playlistItems.add(
-        PlaylistItem(
-          title: title,
-          album: album,
-          artist: artist,
-          duration: duration,
-        ),
-      );
-    }
+  //     playlistItems.add(
+  //       PlaylistItem(
+  //         title: title,
+  //         album: album,
+  //         artist: artist,
+  //         duration: duration,
+  //       ),
+  //     );
+  //   }
 
-    // await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      isLoading = false;
-    });
-  }
+  //   // await Future.delayed(const Duration(seconds: 1));
+  //   setState(() {
+  //     isLoading = false;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -93,160 +91,47 @@ class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
           ),
         ],
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.red))
-          : playlistItems.isEmpty
-          ? const Center(
-              child: Text(
-                'No songs in playlist',
-                style: TextStyle(color: Colors.white54, fontSize: 16),
-              ),
-            )
-          : ListView.builder(
-              itemCount: playlistItems.length,
-              itemBuilder: (context, index) {
-                final item = playlistItems[index];
-                return PlaylistTile(
-                  item: item,
-                  onTap: () {
-                    // Handle song tap
-                  },
-                  onMorePressed: () {
-                    // Handle more options
-                  },
-                );
-              },
-            ),
-    );
-  }
-}
-
-// =============================================================================
-
-class PlaylistItem {
-  final String? title;
-  final String? album;
-  final String? artist;
-  final Duration? duration;
-
-  PlaylistItem({this.title, this.album, this.artist, this.duration});
-}
-
-class PlaylistTile extends StatelessWidget {
-  final PlaylistItem item;
-  final VoidCallback onTap;
-  final VoidCallback onMorePressed;
-
-  const PlaylistTile({
-    super.key,
-    required this.item,
-    required this.onTap,
-    required this.onMorePressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-            child: Row(
-              children: [
-                // Album Art
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: const Color(0xFF3A3A3A),
-                  ),
-                  child: (item.album != null && item.artist != null)
-                      ? FutureBuilder(
-                          future: getAlbumArtPath(item.artist!, item.album!),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
-                                child: Image.file(
-                                  File(snapshot.data!),
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      AlbumArtPlaceholder(),
-                                ),
-                              );
-                            }
-                            return AlbumArtPlaceholder();
-                          },
-                        )
-                      : AlbumArtPlaceholder(),
-                ),
-                const SizedBox(width: 12),
-                // Song Info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.title ?? "",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        item.artist ?? "",
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                // Duration (if available)
-                if (item.duration != null)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Text(
-                      _formatDuration(item.duration!),
-                      style: const TextStyle(
-                        color: Colors.white54,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                // More options button
-                IconButton(
-                  icon: const Icon(
-                    Icons.more_vert,
-                    color: Colors.white54,
-                    size: 20,
-                  ),
-                  onPressed: onMorePressed,
-                ),
-              ],
-            ),
-          ),
-        ),
+      // body: _buildPlaylist(),
+      body: ValueListenableBuilder(
+        valueListenable: MpdRemoteService.instance.currentPlaylist,
+        builder: (context, value, child) {
+          return _buildPlaylist(value);
+        },
       ),
     );
   }
 
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "${duration.inHours > 0 ? '${twoDigits(duration.inHours)}:' : ''}$twoDigitMinutes:$twoDigitSeconds";
+  Widget _buildPlaylist(List<PlaylistItem> queue) {
+    return queue.isEmpty
+        ? const Center(
+            child: Text(
+              'No songs in playlist',
+              style: TextStyle(color: Colors.white54, fontSize: 16),
+            ),
+          )
+        : Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: queue.length,
+                  itemBuilder: (context, index) {
+                    final item = queue[index];
+                    return PlaylistTile(
+                      item: item,
+                      onTap: () {
+                        // Handle song tap
+                      },
+                      onMorePressed: () {
+                        // Handle more options
+                      },
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 30),
+            ],
+          );
   }
 }
+
+// =============================================================================

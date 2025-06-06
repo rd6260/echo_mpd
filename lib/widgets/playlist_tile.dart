@@ -1,0 +1,125 @@
+import 'dart:io';
+import 'package:echo_mpd/types/playlist_item.dart';
+import 'package:echo_mpd/utils/album_art_helper.dart';
+import 'package:echo_mpd/widgets/album_art_placeholder.dart';
+import 'package:flutter/material.dart';
+
+class PlaylistTile extends StatelessWidget {
+  final PlaylistItem item;
+  final VoidCallback onTap;
+  final VoidCallback onMorePressed;
+
+  const PlaylistTile({
+    super.key,
+    required this.item,
+    required this.onTap,
+    required this.onMorePressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+            child: Row(
+              children: [                        // Handle song tap
+
+                // Album Art
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: const Color(0xFF3A3A3A),
+                  ),
+                  child: (item.album != null && item.artist != null)
+                      ? FutureBuilder(
+                          future: getAlbumArtPath(item.artist!, item.album!),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: Image.file(
+                                  File(snapshot.data!),
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      AlbumArtPlaceholder(),
+                                ),
+                              );
+                            }
+                            return AlbumArtPlaceholder();
+                          },
+                        )
+                      : AlbumArtPlaceholder(),
+                ),
+                const SizedBox(width: 12),
+                // Song Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title ?? "",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item.artist ?? "",
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                // Duration (if available)
+                if (item.duration != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Text(
+                      _formatDuration(item.duration!),
+                      style: const TextStyle(
+                        color: Colors.white54,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                // More options button
+                IconButton(
+                  icon: const Icon(
+                    Icons.more_vert,
+                    color: Colors.white54,
+                    size: 20,
+                  ),
+                  onPressed: onMorePressed,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${duration.inHours > 0 ? '${twoDigits(duration.inHours)}:' : ''}$twoDigitMinutes:$twoDigitSeconds";
+  }
+}
