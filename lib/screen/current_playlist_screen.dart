@@ -11,48 +11,11 @@ class CurrentPlaylistScreen extends StatefulWidget {
 }
 
 class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.white),
-          onPressed: () {},
-        ),
-        title: const Text(
-          'Playlist',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.w300,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.repeat, color: Colors.white54),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.shuffle, color: Colors.red),
-            onPressed: () {},
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.red,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.play_arrow, color: Colors.white),
-              onPressed: () {},
-            ),
-          ),
-        ],
-      ),
-      // body: _buildPlaylist(),
       body: ValueListenableBuilder(
         valueListenable: MpdRemoteService.instance.currentPlaylist,
         builder: (context, value, child) {

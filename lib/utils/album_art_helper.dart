@@ -1,12 +1,14 @@
 // import 'dart:convert';
-import 'package:echo_mpd/utils/lastfm_service.dart';
-import 'package:http/http.dart' as http;
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'package:echo_mpd/utils/mpd_remote_service.dart';
+import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+import 'package:echo_mpd/utils/lastfm_service.dart';
 
 Future<String?> getAlbumArtPath(String albumArtist, String album) async {
-  print("DEV: looking for | $albumArtist | $album");
+
+  // print("DEV: looking for | $albumArtist | $album");
   try {
     // Get cache directory
     final Directory cacheDir = await getTemporaryDirectory();
@@ -16,7 +18,7 @@ Future<String?> getAlbumArtPath(String albumArtist, String album) async {
 
     // Check if album art already exists in cache
     if (await file.exists()) {
-      print("DEV: art cache found | $albumArtist | $album");
+      // print("DEV: art cache found | $albumArtist | $album");
       return filePath;
     }
 
@@ -42,12 +44,12 @@ Future<String?> getAlbumArtPath(String albumArtist, String album) async {
       }
     } catch (e) {
       // Error downloading album art
-      print('Error downloading album art: $e');
+      // print('Error downloading album art: $e');
       return null;
     }
   } catch (e) {
     // Error accessing cache directory or other filesystem operations
-    print('Error in getAlbumArtPath: $e');
+    // print('Error in getAlbumArtPath: $e');
     return null;
   }
 }
@@ -95,3 +97,4 @@ Future<String?> getAlbumArtPath(String albumArtist, String album) async {
 
 //   return images[0]['image'];
 // }
+

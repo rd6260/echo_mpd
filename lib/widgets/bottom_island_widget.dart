@@ -72,6 +72,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
       curve: Curves.easeInOut,
     );
   }
+
   /// Action when the play/pause track button is pressed
   void onPlayPause() {}
 
@@ -133,7 +134,8 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                         // Get the current song information
                         String? songTitle = currentSong?.title?.join("");
                         String? album = currentSong?.album?.join("");
-                        String? albumArtistName = currentSong?.albumArtist?.join("/");
+                        String? albumArtistName = currentSong?.albumArtist
+                            ?.join("/");
 
                         return Row(
                           children: [

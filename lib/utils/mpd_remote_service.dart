@@ -9,6 +9,7 @@ class MpdRemoteService {
   static MpdRemoteService get instance => _instance;
 
   MpdClient? _client;
+  MpdClient? _clientThatLooksForChanges;
   bool _isInitialized = false;
   String? _host;
   int? _port;
@@ -28,7 +29,9 @@ class MpdRemoteService {
       // Initialize the client
       _client = MpdClient(
         connectionDetails: MpdConnectionDetails(host: host, port: port),
-        // onConnect: () => debugPrint("DEV: Connection successful!"),
+      );
+      _clientThatLooksForChanges = MpdClient(
+        connectionDetails: MpdConnectionDetails(host: host, port: port),
       );
 
       // Test connection and get current song
@@ -58,7 +61,7 @@ class MpdRemoteService {
   void _mpdStatusPoll() async {
     while (_isInitialized && _client != null) {
       try {
-        Set<MpdSubsystem> idleResponse = await _client!.idle();
+        Set<MpdSubsystem> idleResponse = await _clientThatLooksForChanges!.idle();
 
         for (var response in idleResponse) {
           debugPrint("DEV: mpd change | $response");
@@ -159,4 +162,5 @@ class MpdRemoteService {
     currentSong.dispose();
     isConnected.dispose();
   }
+
 }

@@ -23,7 +23,6 @@ class LastfmService {
 
   LastfmService();
 
-
   /// Get all available album art URLs for a given artist and album
   Future<List<ImageInfo>> getAlbumArt(String artist, String album) async {
     final params = {
@@ -70,7 +69,8 @@ class LastfmService {
             .toList();
       }
     } catch (e) {
-      print('Error fetching artist image: $e');
+      // print('Error fetching artist image: $e');
+      rethrow;
     }
 
     return [];
@@ -156,17 +156,17 @@ class LastfmService {
         final data = json.decode(response.body);
 
         if (data['error'] != null) {
-          print('Last.fm API Error: ${data['message']}');
+          // print('Last.fm API Error: ${data['message']}');
           return null;
         }
 
         return data;
       } else {
-        print('HTTP Error: ${response.statusCode}');
+        // print('HTTP Error: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('Request failed: $e');
+      // print('Request failed: $e');
       return null;
     }
   }
