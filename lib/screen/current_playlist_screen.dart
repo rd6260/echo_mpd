@@ -70,27 +70,23 @@ class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
               style: TextStyle(color: Colors.white54, fontSize: 16),
             ),
           )
-        : Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: queue.length,
-                  itemBuilder: (context, index) {
-                    final item = queue[index];
-                    return PlaylistTile(
-                      item: item,
-                      onTap: () {
-                        // Handle song tap
-                      },
-                      onMorePressed: () {
-                        // Handle more options
-                      },
-                    );
-                  },
-                ),
-              ),
-              // SizedBox(height: 200),
-            ],
-          );
+        : Expanded(
+          child: ListView.builder(
+            padding: EdgeInsets.only(bottom: 200),
+            itemCount: queue.length,
+            itemBuilder: (context, index) {
+              final item = queue[index];
+              return PlaylistTile(
+                item: item,
+                onTap: () {
+                  // Handle song tap
+                },
+                onMorePressed: () {
+                  // Handle more options
+                },
+              );
+            },
+          ),
+        );
   }
 }
