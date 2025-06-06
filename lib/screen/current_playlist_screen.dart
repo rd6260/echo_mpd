@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:dart_mpd/dart_mpd.dart';
 import 'package:echo_mpd/utils/album_art_helper.dart';
 import 'package:echo_mpd/utils/mpd_remote_service.dart';
@@ -56,9 +55,9 @@ class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF2A2A2A),
+        backgroundColor: Colors.black,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.menu, color: Colors.white),
@@ -121,6 +120,8 @@ class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
     );
   }
 }
+
+// =============================================================================
 
 class PlaylistItem {
   final String? title;
@@ -247,38 +248,5 @@ class PlaylistTile extends StatelessWidget {
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     return "${duration.inHours > 0 ? '${twoDigits(duration.inHours)}:' : ''}$twoDigitMinutes:$twoDigitSeconds";
-  }
-}
-
-// Example usage and sample data (you can remove this when implementing)
-class SamplePlaylistData {
-  static List<PlaylistItem> getSamplePlaylist() {
-    return [
-      PlaylistItem(
-        title: "1 step forward, 3 steps back",
-        artist: "Olivia Rodrigo",
-        duration: const Duration(minutes: 2, seconds: 43),
-      ),
-      PlaylistItem(
-        title: "1, 2, 3 (feat. Jason Derulo & De La Ghetto)",
-        artist: "Sofia Reyes/Jason Derulo/De La Ghetto",
-        duration: const Duration(minutes: 3, seconds: 27),
-      ),
-      PlaylistItem(
-        title: "10 I See",
-        artist: "John Michael Howell",
-        duration: const Duration(minutes: 3, seconds: 45),
-      ),
-      PlaylistItem(
-        title: "10,000 Hours (with Justin Bieber)",
-        artist: "Dan + Shay/Justin Bieber",
-        duration: const Duration(minutes: 2, seconds: 47),
-      ),
-      PlaylistItem(
-        title: "100 words",
-        artist: "Prateek Kuhad",
-        duration: const Duration(minutes: 4, seconds: 12),
-      ),
-    ];
   }
 }

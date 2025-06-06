@@ -1,4 +1,4 @@
-import 'package:echo_mpd/screen/home_screen.dart';
+import 'package:echo_mpd/screen/main_screen.dart';
 import 'package:echo_mpd/utils/mpd_remote_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -102,7 +102,7 @@ class _MpdConnectionGateScreenState extends State<MpdConnectionGateScreen>
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            MaterialPageRoute(builder: (context) => MainScreen()),
           );
         }
       } catch (e) {
@@ -169,7 +169,7 @@ class _MpdConnectionGateScreenState extends State<MpdConnectionGateScreen>
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => MainScreen()),
         );
       }
     } catch (e) {

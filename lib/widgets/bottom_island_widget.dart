@@ -6,7 +6,8 @@ import 'package:echo_mpd/widgets/album_art_placeholder.dart';
 import 'package:flutter/material.dart';
 
 class BottomIslandWidget extends StatefulWidget {
-  const BottomIslandWidget({super.key});
+  final List<String> tabList;
+  const BottomIslandWidget({super.key, required this.tabList});
 
   @override
   State<BottomIslandWidget> createState() => _BottomIslandWidgetState();
@@ -24,20 +25,10 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
   static const double cornerRadiusEnd = 14;
   static const double cornerRadiusMiddle = 3;
 
-  final List<String> _tabs = [
-    'HOME',
-    'PLAYLISTS',
-    'FOLDERS',
-    'TRACKS',
-    'ALBUMS',
-    'ARTISTS',
-    'ALBUMS',
-  ];
-
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabs.length, vsync: this);
+    _tabController = TabController(length: widget.tabList.length, vsync: this);
     _scrollController = ScrollController();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 100),
@@ -291,7 +282,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                   child: ListView.builder(
                     controller: _scrollController,
                     scrollDirection: Axis.horizontal,
-                    itemCount: _tabs.length,
+                    itemCount: widget.tabList.length,
                     itemBuilder: (context, index) {
                       bool isSelected = _selectedIndex == index;
                       return GestureDetector(
@@ -304,7 +295,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                           alignment: Alignment.center,
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: Text(
-                            _tabs[index],
+                            widget.tabList[index],
                             style: TextStyle(
                               color: isSelected ? Colors.red : Colors.white,
                               fontSize: 14,
