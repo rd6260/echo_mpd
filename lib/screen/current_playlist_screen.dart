@@ -11,6 +11,24 @@ class CurrentPlaylistScreen extends StatefulWidget {
 }
 
 class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
+  final ScrollController _scrollController = ScrollController();
+  final ValueNotifier<double> _scrollOffset = ValueNotifier(0.0);
+  final double _stickyOffset = 60.0; // Height at which the bar becomes sticky
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      _scrollOffset.value = _scrollController.offset;
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _scrollOffset.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,23 +51,130 @@ class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
           style: TextStyle(color: Colors.white54, fontSize: 16),
         ),
       );
-    } else {
-      return ListView.builder(
-        padding: EdgeInsets.only(bottom: 200),
-        itemCount: queue.length,
-        itemBuilder: (context, index) {
-          final song = queue[index];
-          return PlaylistTile(
-            song: song,
-            onTap: () {
-              // Handle song tap
-            },
-            onMorePressed: () {
-              // Handle more options
-            },
-          );
-        },
-      );
     }
+
+    return Stack(
+      children: [
+        CustomScrollView(
+          controller: _scrollController,
+          physics: const ClampingScrollPhysics(), // Ensures smooth scrolling
+          slivers: [
+            // Add space for the title at the top
+            SliverToBoxAdapter(
+              child: Container(
+                height: 120.0,
+                color: Colors.black,
+                alignment: Alignment.bottomLeft,
+                padding: const EdgeInsets.only(left: 20, bottom: 20),
+                child: const Text(
+                  'Playlist',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            // Add space for the floating control bar
+            SliverToBoxAdapter(
+              child: Container(
+                height: 80.0, // Space for the control bar
+                color: Colors.black,
+              ),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final song = queue[index];
+                  return PlaylistTile(
+                    song: song,
+                    onTap: () {
+                      // Handle song tap
+                    },
+                    onMorePressed: () {
+                      // Handle more options
+                    },
+                  );
+                },
+                childCount: queue.length,
+              ),
+            ),
+            // Add some bottom padding to prevent overlap with any bottom navigation
+            const SliverPadding(padding: EdgeInsets.only(bottom: 200)),
+          ],
+        ),
+        // Floating control bar that moves with scroll initially, then sticks
+        ValueListenableBuilder<double>(
+          valueListenable: _scrollOffset,
+          builder: (context, scrollOffset, child) {
+            // Calculate the bar position based on scroll offset
+            double barTop = 140.0 - scrollOffset;
+            if (barTop < _stickyOffset) {
+              barTop = _stickyOffset;
+            }
+
+            return Positioned(
+              top: barTop,
+              left: 16.0,
+              right: 16.0,
+              child: Container(
+                height: 60.0,
+                decoration: BoxDecoration(
+                  color: Colors.grey[900]?.withValues(alpha: 0.95),
+                  borderRadius: BorderRadius.circular(30.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 8.0,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(left: 16.0),
+                      child: Icon(Icons.menu, color: Colors.white, size: 20),
+                    ),
+                    const Spacer(),
+                    Container(
+                      margin: const EdgeInsets.only(right: 8.0),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.shuffle,
+                              color: Colors.red,
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              // Handle shuffle
+                            },
+                          ),
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.play_arrow,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
   }
 }
