@@ -10,11 +10,9 @@ class MainScreen extends StatelessWidget {
   final List<String> _tabs = [
     'HOME',
     'PLAYLISTS',
-    'FOLDERS',
     'TRACKS',
     'ALBUMS',
     'ARTISTS',
-    'ALBUMS',
   ];
 
   @override
@@ -25,7 +23,10 @@ class MainScreen extends StatelessWidget {
         child: Stack(
           children: [
             // Pages
-            PageView(controller: _pageController, children: [HomeScreen(), CurrentPlaylistScreen()]),
+            PageView(
+              controller: _pageController,
+              children: [HomeScreen(), CurrentPlaylistScreen()],
+            ),
 
             // Bottom music player island
             Align(

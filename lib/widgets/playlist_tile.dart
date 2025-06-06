@@ -28,8 +28,7 @@ class PlaylistTile extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
             child: Row(
-              children: [                        // Handle song tap
-
+              children: [
                 // Album Art
                 Container(
                   width: 50,
