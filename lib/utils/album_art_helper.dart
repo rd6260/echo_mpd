@@ -1,6 +1,5 @@
 // import 'dart:convert';
 import 'dart:io';
-import 'package:echo_mpd/utils/mpd_remote_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
