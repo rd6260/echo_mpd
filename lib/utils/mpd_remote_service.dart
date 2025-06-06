@@ -61,7 +61,8 @@ class MpdRemoteService {
   void _mpdStatusPoll() async {
     while (_isInitialized && _client != null) {
       try {
-        Set<MpdSubsystem> idleResponse = await _clientThatLooksForChanges!.idle();
+        Set<MpdSubsystem> idleResponse = await _clientThatLooksForChanges!
+            .idle();
 
         for (var response in idleResponse) {
           debugPrint("DEV: mpd change | $response");
@@ -162,5 +163,4 @@ class MpdRemoteService {
     currentSong.dispose();
     isConnected.dispose();
   }
-
 }

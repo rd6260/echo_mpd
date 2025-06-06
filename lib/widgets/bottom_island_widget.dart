@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:echo_mpd/screen/player_screen.dart';
 import 'package:echo_mpd/utils/album_art_helper.dart';
 import 'package:echo_mpd/utils/mpd_remote_service.dart';
 import 'package:echo_mpd/widgets/album_art_placeholder.dart';
@@ -88,6 +89,14 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
   /// Action when the search button is pressed
   void onSearch() {}
 
+  /// Action when pressed on the music island
+  onMusicIsland() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PlayerScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -97,6 +106,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
         children: [
           // Music Player Control Section
           GestureDetector(
+            onTap: onMusicIsland,
             onTapDown: (_) {
               _animationController.forward();
             },
@@ -105,12 +115,6 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
             },
             onTapCancel: () {
               _animationController.reverse();
-            },
-            onTap: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => NewScreen()),
-              // );
             },
             child: AnimatedBuilder(
               animation: _scaleAnimation,
