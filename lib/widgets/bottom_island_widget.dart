@@ -8,7 +8,15 @@ import 'package:flutter/material.dart';
 
 class BottomIslandWidget extends StatefulWidget {
   final List<String> tabList;
-  const BottomIslandWidget({super.key, required this.tabList});
+  final ValueNotifier<int> currentIndexNotifier;
+  final Function(int) onTabChanged;
+  
+  const BottomIslandWidget({
+    super.key, 
+    required this.tabList,
+    required this.currentIndexNotifier,
+    required this.onTabChanged,
+  });
 
   @override
   State<BottomIslandWidget> createState() => _BottomIslandWidgetState();
@@ -16,11 +24,9 @@ class BottomIslandWidget extends StatefulWidget {
 
 class _BottomIslandWidgetState extends State<BottomIslandWidget>
     with TickerProviderStateMixin {
-  late TabController _tabController;
   late ScrollController _scrollController;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  int _selectedIndex = 0;
 
   // Corner Radius
   static const double cornerRadiusEnd = 14;
@@ -29,7 +35,6 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: widget.tabList.length, vsync: this);
     _scrollController = ScrollController();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 100),
@@ -38,26 +43,31 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-    _tabController.addListener(() {
-      setState(() {
-        _selectedIndex = _tabController.index;
-      });
+    
+    // Listen to index changes and center the tab
+    widget.currentIndexNotifier.addListener(_onIndexChanged);
+  }
+
+  void _onIndexChanged() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _centerTabInView(widget.currentIndexNotifier.value);
     });
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    widget.currentIndexNotifier.removeListener(_onIndexChanged);
     _scrollController.dispose();
     _animationController.dispose();
     super.dispose();
   }
 
   void _centerTabInView(int index) {
+    if (!_scrollController.hasClients) return;
+    
     // Calculate the position to center the selected tab
     const double tabWidth = 90.0; // Approximate width of each tab
-    // const double padding = 20.0;
-
+    
     // Get the screen width to calculate center position
     final screenWidth = MediaQuery.of(context).size.width;
     final targetPosition =
@@ -143,7 +153,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
 
                         return Row(
                           children: [
-                            // Album _buildMusicPlayerart
+                            // Album art
                             Container(
                               width: 48,
                               height: 48,
@@ -273,7 +283,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
             ),
           ),
           // spacing
-          SizedBox(height: 3),
+          const SizedBox(height: 3),
           // Bottom Navigation Section
           Container(
             height: 60,
@@ -290,32 +300,37 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
               children: [
                 // Scrollable text buttons
                 Expanded(
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: widget.tabList.length,
-                    itemBuilder: (context, index) {
-                      bool isSelected = _selectedIndex == index;
-                      return GestureDetector(
-                        onTap: () {
-                          _tabController.animateTo(index);
-                          _centerTabInView(index);
-                        },
-                        behavior: HitTestBehavior.translucent,
-                        child: Container(
-                          height: double.maxFinite,
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Text(
-                            widget.tabList[index],
-                            style: TextStyle(
-                              color: isSelected ? Colors.red : Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.5,
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: widget.currentIndexNotifier,
+                    builder: (context, selectedIndex, child) {
+                      return ListView.builder(
+                        controller: _scrollController,
+                        scrollDirection: Axis.horizontal,
+                        itemCount: widget.tabList.length,
+                        itemBuilder: (context, index) {
+                          bool isSelected = selectedIndex == index;
+                          return GestureDetector(
+                            onTap: () {
+                              widget.onTabChanged(index);
+                              _centerTabInView(index);
+                            },
+                            behavior: HitTestBehavior.translucent,
+                            child: Container(
+                              height: double.maxFinite,
+                              alignment: Alignment.center,
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              child: Text(
+                                widget.tabList[index],
+                                style: TextStyle(
+                                  color: isSelected ? Colors.red : Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       );
                     },
                   ),
