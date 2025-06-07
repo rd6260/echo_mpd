@@ -30,10 +30,17 @@ class PlaylistTile extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: isPlaying ? const Color(0xFF2A2A2A) : Colors.transparent,
+              color: isPlaying ? const Color(0xFF1A0F0F) : Colors.transparent,
               border: isPlaying 
-                  ? Border.all(color: Theme.of(context).primaryColor.withOpacity(0.3), width: 1)
+                  ? Border.all(color: const Color(0xFFFF4444).withValues(alpha: 0.4), width: 1.5)
                   : null,
+              boxShadow: isPlaying ? [
+                BoxShadow(
+                  color: const Color(0xFFFF4444).withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ] : null,
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
@@ -75,12 +82,19 @@ class PlaylistTile extends StatelessWidget {
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(4),
-                              color: Colors.black.withOpacity(0.6),
+                              gradient: LinearGradient(
+                                colors: [
+                                  const Color(0xFFFF4444).withValues(alpha: 0.8),
+                                  const Color(0xFFFF4444).withValues(alpha: 0.6),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
                             ),
-                            child: Icon(
-                              Icons.volume_up,
-                              color: Theme.of(context).primaryColor,
-                              size: 20,
+                            child: const Icon(
+                              Icons.play_arrow,
+                              color: Colors.white,
+                              size: 24,
                             ),
                           ),
                         ),
@@ -98,9 +112,9 @@ class PlaylistTile extends StatelessWidget {
                               child: Text(
                                 song.title?.join("/") ?? "",
                                 style: TextStyle(
-                                  color: isPlaying ? Theme.of(context).primaryColor : Colors.white,
+                                  color: isPlaying ? const Color(0xFFFF4444) : Colors.white,
                                   fontSize: 16,
-                                  fontWeight: isPlaying ? FontWeight.w500 : FontWeight.w400,
+                                  fontWeight: isPlaying ? FontWeight.w600 : FontWeight.w400,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -108,12 +122,38 @@ class PlaylistTile extends StatelessWidget {
                             ),
                             // Playing animation icon
                             if (isPlaying)
-                              Padding(
+                              Container(
                                 padding: const EdgeInsets.only(left: 8),
-                                child: Icon(
-                                  Icons.graphic_eq,
-                                  color: Theme.of(context).primaryColor,
-                                  size: 16,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 3,
+                                      height: 12,
+                                      margin: const EdgeInsets.only(right: 2),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFF4444),
+                                        borderRadius: BorderRadius.circular(1),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 3,
+                                      height: 16,
+                                      margin: const EdgeInsets.only(right: 2),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFF4444),
+                                        borderRadius: BorderRadius.circular(1),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 3,
+                                      height: 10,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFF4444),
+                                        borderRadius: BorderRadius.circular(1),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                           ],
@@ -122,8 +162,9 @@ class PlaylistTile extends StatelessWidget {
                         Text(
                           song.artist?.join("/") ?? "",
                           style: TextStyle(
-                            color: isPlaying ? Theme.of(context).primaryColor.withOpacity(0.8) : Colors.white70,
+                            color: isPlaying ? const Color(0xFFFF4444).withValues(alpha: 0.9) : Colors.white70,
                             fontSize: 14,
+                            fontWeight: isPlaying ? FontWeight.w500 : FontWeight.normal,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -138,8 +179,9 @@ class PlaylistTile extends StatelessWidget {
                       child: Text(
                         _formatDuration(song.duration!),
                         style: TextStyle(
-                          color: isPlaying ? Theme.of(context).primaryColor.withOpacity(0.7) : Colors.white54,
+                          color: isPlaying ? const Color(0xFFFF4444).withValues(alpha: 0.8) : Colors.white54,
                           fontSize: 12,
+                          fontWeight: isPlaying ? FontWeight.w500 : FontWeight.normal,
                         ),
                       ),
                     ),
@@ -147,7 +189,7 @@ class PlaylistTile extends StatelessWidget {
                   IconButton(
                     icon: Icon(
                       Icons.more_vert,
-                      color: isPlaying ? Theme.of(context).primaryColor.withOpacity(0.7) : Colors.white54,
+                      color: isPlaying ? const Color(0xFFFF4444).withValues(alpha: 0.8) : Colors.white54,
                       size: 20,
                     ),
                     onPressed: onMorePressed,

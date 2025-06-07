@@ -44,7 +44,11 @@ class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
   }
 
   /// When taped on a song
-  onSongTap(MpdSong song) {}
+  ///
+  /// It takes the index of the song and plays it
+  onSongTap(int songIndex) {
+    MpdRemoteService.instance.client.play(songIndex);
+  }
 
   Widget _buildPlaylist(List<MpdSong> queue) {
     if (queue.isEmpty) {
@@ -94,7 +98,7 @@ class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
                   isPlaying:
                       MpdRemoteService.instance.currentSong.value?.file ==
                       song.file,
-                  onTap: () => onSongTap(song),
+                  onTap: () => onSongTap(index),
                   onMorePressed: () {
                     // Handle more options
                   },
