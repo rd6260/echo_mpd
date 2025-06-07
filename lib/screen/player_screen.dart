@@ -10,11 +10,22 @@ class PlayerScreen extends StatefulWidget {
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
-  bool isPlaying = false;
   double currentPosition = 1.26;
   double totalDuration = 2.58;
   bool isShuffled = false;
   bool isRepeated = false;
+
+  onPreviousTrack() async {
+    await MpdRemoteService.instance.client.previous();
+  }
+
+  onNextTrack() async {
+    await MpdRemoteService.instance.client.next();
+  }
+
+  onPlayPause() async {
+    await MpdRemoteService.instance.client.pause();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -173,9 +184,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
                       // Previous Button
                       IconButton(
-                        onPressed: () {
-                          // Handle previous track
-                        },
+                        onPressed: onPreviousTrack,
                         icon: const Icon(
                           Icons.skip_previous,
                           color: Colors.white,
@@ -184,32 +193,29 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       ),
 
                       // Play/Pause Button
-                      Container(
-                        width: 64,
-                        height: 64,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFE91E63),
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              isPlaying = !isPlaying;
-                            });
-                          },
-                          icon: Icon(
-                            isPlaying ? Icons.pause : Icons.play_arrow,
-                            color: Colors.white,
-                            size: 32,
+                      ValueListenableBuilder(
+                        valueListenable: MpdRemoteService.instance.isPlaying,
+                        builder: (context, isPlaying, child) => Container(
+                          width: 64,
+                          height: 64,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFE91E63),
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            onPressed: onPlayPause,
+                            icon: Icon(
+                              isPlaying ? Icons.pause : Icons.play_arrow,
+                              color: Colors.white,
+                              size: 32,
+                            ),
                           ),
                         ),
                       ),
 
                       // Next Button
                       IconButton(
-                        onPressed: () {
-                          // Handle next track
-                        },
+                        onPressed: onNextTrack,
                         icon: const Icon(
                           Icons.skip_next,
                           color: Colors.white,

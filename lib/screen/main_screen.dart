@@ -14,14 +14,13 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen>
-    with TickerProviderStateMixin {
+class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   late AnimationController _slideController;
   late Animation<double> _slideAnimation;
   final _currentIndexNotifier = ValueNotifier<int>(0);
   int _previousIndex = 0;
   bool _isAnimating = false;
-  
+
   final List<String> _tabs = [
     'HOME',
     'PLAYLISTS',
@@ -60,14 +59,12 @@ class _MainScreenState extends State<MainScreen>
 
   void _onTabChanged(int index) async {
     if (_currentIndexNotifier.value == index || _isAnimating) return;
-    
+
     _isAnimating = true;
     _previousIndex = _currentIndexNotifier.value;
-    
-    setState(() {
-      _currentIndexNotifier.value = index;
-    });
-    
+
+    _currentIndexNotifier.value = index;
+
     await _slideController.forward();
     _slideController.reset();
     _isAnimating = false;
@@ -76,7 +73,7 @@ class _MainScreenState extends State<MainScreen>
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -89,29 +86,29 @@ class _MainScreenState extends State<MainScreen>
                 final currentIndex = _currentIndexNotifier.value;
                 final isMovingRight = currentIndex > _previousIndex;
                 final slideOffset = _slideAnimation.value;
-                
+
                 return Stack(
                   children: [
                     // Previous screen sliding out
                     if (_isAnimating)
                       Transform.translate(
                         offset: Offset(
-                          isMovingRight 
-                            ? -screenWidth * slideOffset 
-                            : screenWidth * slideOffset,
+                          isMovingRight
+                              ? -screenWidth * slideOffset
+                              : screenWidth * slideOffset,
                           0,
                         ),
                         child: _screens[_previousIndex],
                       ),
-                    
+
                     // Current screen sliding in
                     Transform.translate(
                       offset: Offset(
                         _isAnimating
-                          ? (isMovingRight 
-                              ? screenWidth * (1 - slideOffset)
-                              : -screenWidth * (1 - slideOffset))
-                          : 0,
+                            ? (isMovingRight
+                                  ? screenWidth * (1 - slideOffset)
+                                  : -screenWidth * (1 - slideOffset))
+                            : 0,
                         0,
                       ),
                       child: _screens[currentIndex],
