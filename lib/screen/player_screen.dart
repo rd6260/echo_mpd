@@ -21,7 +21,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text("Track", style: TextStyle(color: Colors.white)),
+        // title: Text("Track", style: TextStyle(color: Colors.white)),
         foregroundColor: Colors.white,
         backgroundColor: Colors.black,
       ),
@@ -135,7 +135,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
                               ),
                             ),
                             Text(
-                              _formatTime(currentSong?.time?.toDouble() ?? totalDuration),
+                              _formatTime(
+                                currentSong?.time?.toDouble() ?? totalDuration,
+                              ),
                               style: const TextStyle(
                                 color: Colors.grey,
                                 fontSize: 14,
