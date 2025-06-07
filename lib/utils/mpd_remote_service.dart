@@ -90,7 +90,7 @@ class MpdRemoteService {
       _isInitialized = true;
       _startStatusPolling();
       
-      debugPrint('MPD Service initialized successfully (${host}:${port})');
+      debugPrint('MPD Service initialized successfully ($host:$port)');
     } catch (e) {
       debugPrint('MPD Service initialization failed: $e');
       isConnected.value = false;

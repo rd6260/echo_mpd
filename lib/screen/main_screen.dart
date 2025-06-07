@@ -1,5 +1,8 @@
+import 'package:echo_mpd/screen/albums_screen.dart';
+import 'package:echo_mpd/screen/artists_screen.dart';
 import 'package:echo_mpd/screen/current_playlist_screen.dart';
 import 'package:echo_mpd/screen/home_screen.dart';
+import 'package:echo_mpd/screen/tracks_screen.dart';
 import 'package:echo_mpd/widgets/bottom_island_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -31,10 +34,9 @@ class _MainScreenState extends State<MainScreen>
   final List<Widget> _screens = [
     HomeScreen(),
     CurrentPlaylistScreen(),
-    // Add other screens for TRACKS, ALBUMS, ARTISTS
-    Container(child: Center(child: Text('TRACKS', style: TextStyle(color: Colors.white)))),
-    Container(child: Center(child: Text('ALBUMS', style: TextStyle(color: Colors.white)))),
-    Container(child: Center(child: Text('ARTISTS', style: TextStyle(color: Colors.white)))),
+    TracksScreen(),
+    AlbumsScreen(),
+    ArtistsScreen(),
   ];
 
   @override
