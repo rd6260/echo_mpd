@@ -224,8 +224,7 @@ class MpdRemoteService {
   /// 
   ///  - Updates value of `isPlaying` ValueNotifier.
   Future<void> _updatePlayerStatus() async {
-    MpdStatus serverStatus = await _client!.status();yer:
-          await _updateCurrentSong();
+    MpdStatus serverStatus = await _client!.status();
     isPlaying.value = serverStatus.state == MpdState.play;
   }
 

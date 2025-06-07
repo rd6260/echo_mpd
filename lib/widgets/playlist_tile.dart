@@ -8,12 +8,14 @@ class PlaylistTile extends StatelessWidget {
   final MpdSong song;
   final VoidCallback onTap;
   final VoidCallback onMorePressed;
+  final bool isPlaying;
 
   const PlaylistTile({
     super.key,
     required this.song,
     required this.onTap,
     required this.onMorePressed,
+    this.isPlaying = false,
   });
 
   @override
@@ -25,89 +27,133 @@ class PlaylistTile extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(8),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-            child: Row(
-              children: [
-                // Album Art
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: const Color(0xFF3A3A3A),
-                  ),
-                  child: (song.album != null && song.albumArtist != null)
-                      ? FutureBuilder(
-                          future: getAlbumArtPath(song.albumArtist!.join("/"), song.album!.join("/")),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
-                                child: Image.file(
-                                  File(snapshot.data!),
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      AlbumArtPlaceholder(),
-                                ),
-                              );
-                            }
-                            return AlbumArtPlaceholder();
-                          },
-                        )
-                      : AlbumArtPlaceholder(),
-                ),
-                const SizedBox(width: 12),
-                // Song Info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: isPlaying ? const Color(0xFF2A2A2A) : Colors.transparent,
+              border: isPlaying 
+                  ? Border.all(color: Theme.of(context).primaryColor.withOpacity(0.3), width: 1)
+                  : null,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+              child: Row(
+                children: [
+                  // Album Art with playing indicator
+                  Stack(
                     children: [
-                      Text(
-                        song.title?.join("/") ?? "",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color: const Color(0xFF3A3A3A),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        child: (song.album != null && song.albumArtist != null)
+                            ? FutureBuilder(
+                                future: getAlbumArtPath(song.albumArtist!.join("/"), song.album!.join("/")),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    return ClipRRect(
+                                      borderRadius: BorderRadius.circular(4),
+                                      child: Image.file(
+                                        File(snapshot.data!),
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) =>
+                                            AlbumArtPlaceholder(),
+                                      ),
+                                    );
+                                  }
+                                  return AlbumArtPlaceholder();
+                                },
+                              )
+                            : AlbumArtPlaceholder(),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        song.artist?.join("/") ?? "",
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
+                      // Playing indicator overlay
+                      if (isPlaying)
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              color: Colors.black.withOpacity(0.6),
+                            ),
+                            child: Icon(
+                              Icons.volume_up,
+                              color: Theme.of(context).primaryColor,
+                              size: 20,
+                            ),
+                          ),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
                     ],
                   ),
-                ),
-                // Duration (if available)
-                if (song.duration != null)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Text(
-                      _formatDuration(song.duration!),
-                      style: const TextStyle(
-                        color: Colors.white54,
-                        fontSize: 12,
-                      ),
+                  const SizedBox(width: 12),
+                  // Song Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                song.title?.join("/") ?? "",
+                                style: TextStyle(
+                                  color: isPlaying ? Theme.of(context).primaryColor : Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: isPlaying ? FontWeight.w500 : FontWeight.w400,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            // Playing animation icon
+                            if (isPlaying)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Icon(
+                                  Icons.graphic_eq,
+                                  color: Theme.of(context).primaryColor,
+                                  size: 16,
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          song.artist?.join("/") ?? "",
+                          style: TextStyle(
+                            color: isPlaying ? Theme.of(context).primaryColor.withOpacity(0.8) : Colors.white70,
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
                   ),
-                // More options button
-                IconButton(
-                  icon: const Icon(
-                    Icons.more_vert,
-                    color: Colors.white54,
-                    size: 20,
+                  // Duration (if available)
+                  if (song.duration != null)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Text(
+                        _formatDuration(song.duration!),
+                        style: TextStyle(
+                          color: isPlaying ? Theme.of(context).primaryColor.withOpacity(0.7) : Colors.white54,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  // More options button
+                  IconButton(
+                    icon: Icon(
+                      Icons.more_vert,
+                      color: isPlaying ? Theme.of(context).primaryColor.withOpacity(0.7) : Colors.white54,
+                      size: 20,
+                    ),
+                    onPressed: onMorePressed,
                   ),
-                  onPressed: onMorePressed,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

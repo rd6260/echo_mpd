@@ -43,6 +43,9 @@ class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
     );
   }
 
+  /// When taped on a song
+  onSongTap(MpdSong song) {}
+
   Widget _buildPlaylist(List<MpdSong> queue) {
     if (queue.isEmpty) {
       return const Center(
@@ -84,21 +87,19 @@ class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
               ),
             ),
             SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final song = queue[index];
-                  return PlaylistTile(
-                    song: song,
-                    onTap: () {
-                      // Handle song tap
-                    },
-                    onMorePressed: () {
-                      // Handle more options
-                    },
-                  );
-                },
-                childCount: queue.length,
-              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final song = queue[index];
+                return PlaylistTile(
+                  song: song,
+                  isPlaying:
+                      MpdRemoteService.instance.currentSong.value?.file ==
+                      song.file,
+                  onTap: () => onSongTap(song),
+                  onMorePressed: () {
+                    // Handle more options
+                  },
+                );
+              }, childCount: queue.length),
             ),
             // Add some bottom padding to prevent overlap with any bottom navigation
             const SliverPadding(padding: EdgeInsets.only(bottom: 200)),

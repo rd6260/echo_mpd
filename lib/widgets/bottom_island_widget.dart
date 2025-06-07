@@ -10,7 +10,7 @@ class BottomIslandWidget extends StatefulWidget {
   final List<String> tabList;
   final ValueNotifier<int> currentIndexNotifier;
   final Function(int) onTabChanged;
-  
+
   const BottomIslandWidget({
     super.key, 
     required this.tabList,
