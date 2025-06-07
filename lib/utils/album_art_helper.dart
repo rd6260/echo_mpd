@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:echo_mpd/utils/lastfm_service.dart';
+import 'package:echo_mpd/service/lastfm_service.dart';
 
 Future<String?> getAlbumArtPath(String albumArtist, String album) async {
 

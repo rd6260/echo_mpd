@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:echo_mpd/screen/player_screen.dart';
 import 'package:echo_mpd/utils/album_art_helper.dart';
-import 'package:echo_mpd/utils/mpd_remote_service.dart';
+import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:echo_mpd/widgets/album_art_placeholder.dart';
 import 'package:flutter/material.dart';
 

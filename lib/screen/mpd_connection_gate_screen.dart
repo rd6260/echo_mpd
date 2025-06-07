@@ -1,5 +1,5 @@
 import 'package:echo_mpd/screen/main_screen.dart';
-import 'package:echo_mpd/utils/mpd_remote_service.dart';
+import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

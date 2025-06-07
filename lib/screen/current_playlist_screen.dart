@@ -1,5 +1,5 @@
 import 'package:dart_mpd/dart_mpd.dart';
-import 'package:echo_mpd/utils/mpd_remote_service.dart';
+import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:echo_mpd/widgets/playlist_tile.dart';
 import 'package:flutter/material.dart';
 

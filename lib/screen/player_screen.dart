@@ -1,4 +1,4 @@
-import 'package:echo_mpd/utils/mpd_remote_service.dart';
+import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:echo_mpd/widgets/album_art_widget.dart';
 import 'package:flutter/material.dart';
 
