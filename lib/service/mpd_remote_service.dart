@@ -33,8 +33,9 @@ class MpdRemoteService {
   /// Gets the singleton instance of [MpdRemoteService]
   static MpdRemoteService get instance => _instance;
 
-  // Private fields
+  /// Client for interacting with mpd
   MpdClient? _client;
+  /// Client for polling for changes in mpd server 
   MpdClient? _statusClient;
   bool _isInitialized = false;
   bool _isPolling = false;
