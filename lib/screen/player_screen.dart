@@ -181,7 +181,7 @@ class _ControlButtonsWidgetState extends State<ControlButtonsWidget> {
           },
           icon: Icon(
             Icons.shuffle,
-            color: isShuffled ? const Color(0xFFE91E63) : Colors.grey,
+            color: isShuffled ? const Color(0xFF314B17) : Colors.grey,
             size: 28,
           ),
         ),
@@ -199,7 +199,7 @@ class _ControlButtonsWidgetState extends State<ControlButtonsWidget> {
             width: 64,
             height: 64,
             decoration: const BoxDecoration(
-              color: Color(0xFFE91E63),
+              color: Color(0xFF314B17),
               shape: BoxShape.circle,
             ),
             child: IconButton(
@@ -228,7 +228,7 @@ class _ControlButtonsWidgetState extends State<ControlButtonsWidget> {
           },
           icon: Icon(
             Icons.repeat,
-            color: isRepeated ? const Color(0xFFE91E63) : Colors.grey,
+            color: isRepeated ? const Color(0xFF314B17) : Colors.grey,
             size: 28,
           ),
         ),
