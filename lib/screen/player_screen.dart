@@ -64,7 +64,8 @@ class PlayerScreen extends StatelessWidget {
                           children: [
                             Text(
                               currentSong?.title?.join("") ?? "Not Available",
-                              overflow: TextOverflow.ellipsis,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
                               maxLines: 1,
                               style: const TextStyle(
                                 color: Colors.white,
@@ -75,7 +76,8 @@ class PlayerScreen extends StatelessWidget {
                             // const SizedBox(height: 8),
                             Text(
                               currentSong?.artist?.join("/") ?? "Not Available",
-                              overflow: TextOverflow.ellipsis,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
                               maxLines: 1,
                               style: const TextStyle(
                                 // color: Colors.grey,
@@ -86,7 +88,8 @@ class PlayerScreen extends StatelessWidget {
                             // const SizedBox(height: 4),
                             Text(
                               currentSong?.album?.join("") ?? "",
-                              overflow: TextOverflow.ellipsis,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
                               maxLines: 1,
                               style: const TextStyle(
                                 color: Colors.grey,
@@ -96,6 +99,7 @@ class PlayerScreen extends StatelessWidget {
                           ],
                         ),
                       ),
+                      SizedBox(width: 10),
                       // `Favourite` and `More` Button
                       IconButton(
                         onPressed: () {
