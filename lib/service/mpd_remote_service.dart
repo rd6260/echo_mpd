@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dart_mpd/dart_mpd.dart';
 import 'package:flutter/foundation.dart';
 
@@ -35,12 +36,16 @@ class MpdRemoteService {
 
   /// Client for interacting with mpd
   MpdClient? _client;
-  /// Client for polling for changes in mpd server 
+
+  /// Client for polling for changes in mpd server
   MpdClient? _statusClient;
   bool _isInitialized = false;
   bool _isPolling = false;
   String? _host;
   int? _port;
+  
+  /// Timer for updating elapsed time every second during playback
+  Timer? _elapsedTimer;
 
   // Public notifiers for state management
 
@@ -57,6 +62,9 @@ class MpdRemoteService {
 
   /// Notifies listeners when the current playlist (queue) changes
   final ValueNotifier<List<MpdSong>> currentPlaylist = ValueNotifier([]);
+
+  /// Notifies listeners for elapsed time of playing song
+  final ValueNotifier<double?> elapsed = ValueNotifier(null);
 
   /// Initializes the MPD service with the specified connection details
   ///
@@ -108,7 +116,7 @@ class MpdRemoteService {
     _statusClient = MpdClient(connectionDetails: connectionDetails);
   }
 
-  /// Initializes the service state by fetching current song and playlist
+  /// Initializes the service state by fetching current song, playlist and other data
   Future<void> _initializeState() async {
     if (_client == null) return;
 
@@ -117,6 +125,8 @@ class MpdRemoteService {
     isConnected.value = _client!.connection.isConnected;
     await _updatePlayerStatus();
     await _updateCurrentPlaylist();
+    
+    
   }
 
   /// Starts the background status polling using MPD's idle command
@@ -222,11 +232,108 @@ class MpdRemoteService {
   }
 
   /// Updates to be done when Player Status changes (Play, Pause, Stoped)
-  /// 
+  ///
   ///  - Updates value of `isPlaying` ValueNotifier.
   Future<void> _updatePlayerStatus() async {
     MpdStatus serverStatus = await _client!.status();
+    final wasPlaying = isPlaying.value;
     isPlaying.value = serverStatus.state == MpdState.play;
+    elapsed.value = serverStatus.elapsed;
+    
+    // Start or stop the elapsed timer based on playing state
+    if (isPlaying.value && !wasPlaying) {
+      _startElapsedTimer();
+    } else if (!isPlaying.value && wasPlaying) {
+      _stopElapsedTimer();
+    }
+  }
+
+  /// Starts a timer to update elapsed time every second during playback
+  void _startElapsedTimer() {
+    _stopElapsedTimer(); // Stop any existing timer
+    
+    _elapsedTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (isPlaying.value && elapsed.value != null) {
+        final currentElapsed = elapsed.value!;
+        final currentSongDuration = currentSong.value?.time?.toDouble();
+        
+        // Increment elapsed time by 1 second
+        final newElapsed = currentElapsed + 1.0;
+        
+        // Stop timer if we've reached the end of the song
+        if (currentSongDuration != null && newElapsed >= currentSongDuration) {
+          elapsed.value = currentSongDuration;
+          _stopElapsedTimer();
+        } else {
+          elapsed.value = newElapsed;
+        }
+      } else {
+        // Stop timer if not playing
+        _stopElapsedTimer();
+      }
+    });
+  }
+
+  /// Stops the elapsed time timer
+  void _stopElapsedTimer() {
+    _elapsedTimer?.cancel();
+    _elapsedTimer = null;
+  }
+
+  /// Seeks to a specific position in the current song
+  ///
+  /// [position] - The position to seek to in seconds
+  ///
+  /// Example:
+  /// ```dart
+  /// // Seek to 30 seconds into the current song
+  /// await MpdRemoteService.instance.seekToPosition(30.0);
+  /// ```
+  Future<void> seekToPosition(double position) async {
+    if (_client == null) {
+      throw StateError('MpdRemoteService not initialized');
+    }
+
+    try {
+      // MPD's seekcur command seeks to a position in the current song
+      await _client!.seekcur(position.toString());
+      
+      // Update the elapsed time immediately to provide responsive UI feedback
+      elapsed.value = position;
+      
+      debugPrint('Seeked to position: ${position.toStringAsFixed(1)}s');
+    } catch (e) {
+      debugPrint('Failed to seek to position $position: $e');
+      rethrow;
+    }
+  }
+
+  /// Seeks by a relative amount from the current position
+  ///
+  /// [offset] - The offset in seconds (positive for forward, negative for backward)
+  ///
+  /// Example:
+  /// ```dart
+  /// // Seek forward by 10 seconds
+  /// await MpdRemoteService.instance.seekRelative(10.0);
+  /// 
+  /// // Seek backward by 5 seconds
+  /// await MpdRemoteService.instance.seekRelative(-5.0);
+  /// ```
+  Future<void> seekRelative(double offset) async {
+    if (_client == null) {
+      throw StateError('MpdRemoteService not initialized');
+    }
+
+    try {
+      final currentElapsed = elapsed.value ?? 0.0;
+      final newPosition = (currentElapsed + offset).clamp(0.0, double.maxFinite);
+      
+      await seekToPosition(newPosition);
+    } catch (e) {
+      debugPrint('Failed to seek by relative offset $offset: $e');
+      rethrow;
+    }
   }
 
   /// Attempts to reconnect to the MPD server after a connection failure
@@ -296,9 +403,18 @@ class MpdRemoteService {
     await _updateCurrentSong();
   }
 
+  /// Forces an update of the player status including elapsed time
+  ///
+  /// This method is useful when you want to refresh the elapsed time
+  /// without waiting for the automatic update from MPD's idle command
+  Future<void> refreshPlayerStatus() async {
+    await _updatePlayerStatus();
+  }
+
   /// Cleans up internal resources
   void _cleanup() {
     _isPolling = false;
+    _stopElapsedTimer();
     _client = null;
     _statusClient = null;
   }
@@ -324,7 +440,9 @@ class MpdRemoteService {
     // Dispose ValueNotifiers to prevent memory leaks
     currentSong.dispose();
     isConnected.dispose();
+    isPlaying.dispose();
     currentPlaylist.dispose();
+    elapsed.dispose();
 
     debugPrint('MPD Service disposed');
   }

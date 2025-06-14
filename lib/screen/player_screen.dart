@@ -1,38 +1,16 @@
 import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:echo_mpd/widgets/album_art_widget.dart';
+import 'package:echo_mpd/widgets/music_progress_slider_widget.dart';
 import 'package:flutter/material.dart';
 
-class PlayerScreen extends StatefulWidget {
+class PlayerScreen extends StatelessWidget {
   const PlayerScreen({super.key});
-
-  @override
-  State<PlayerScreen> createState() => _PlayerScreenState();
-}
-
-class _PlayerScreenState extends State<PlayerScreen> {
-  double currentPosition = 1.26;
-  double totalDuration = 2.58;
-  bool isShuffled = false;
-  bool isRepeated = false;
-
-  onPreviousTrack() async {
-    await MpdRemoteService.instance.client.previous();
-  }
-
-  onNextTrack() async {
-    await MpdRemoteService.instance.client.next();
-  }
-
-  onPlayPause() async {
-    await MpdRemoteService.instance.client.pause();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        // title: Text("Track", style: TextStyle(color: Colors.white)),
         foregroundColor: Colors.white,
         backgroundColor: Colors.black,
       ),
@@ -79,7 +57,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     children: [
                       Text(
                         currentSong?.title?.join("") ?? "N/A",
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -88,12 +66,18 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       const SizedBox(height: 8),
                       Text(
                         currentSong?.artist?.join("/") ?? "",
-                        style: TextStyle(color: Colors.grey, fontSize: 18),
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 18,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         currentSong?.album?.join("") ?? "",
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                        ),
                       ),
                     ],
                   ),
@@ -101,145 +85,24 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   const SizedBox(height: 40),
 
                   // Progress Bar Section
-                  Column(
-                    children: [
-                      SliderTheme(
-                        data: SliderTheme.of(context).copyWith(
-                          activeTrackColor: const Color(0xFFE91E63),
-                          inactiveTrackColor: Colors.grey[800],
-                          thumbColor: const Color(0xFFE91E63),
-                          thumbShape: const RoundSliderThumbShape(
-                            enabledThumbRadius: 8,
-                          ),
-                          overlayShape: const RoundSliderOverlayShape(
-                            overlayRadius: 16,
-                          ),
-                          trackHeight: 4,
-                        ),
-                        child: Slider(
-                          value:
-                              currentSong?.duration?.inSeconds.toDouble() ??
-                              currentPosition,
-                          min: 0,
-                          max: currentSong?.time?.toDouble() ?? totalDuration,
-                          onChanged: (value) {
-                            setState(() {
-                              currentPosition = value;
-                            });
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Show
-                            Text(
-                              _formatTime(
-                                currentSong?.time?.toDouble() ??
-                                    currentPosition,
-                              ),
-                              style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 14,
-                              ),
-                            ),
-                            Text(
-                              _formatTime(
-                                currentSong?.time?.toDouble() ?? totalDuration,
-                              ),
-                              style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  ValueListenableBuilder<double?>(
+                    valueListenable: MpdRemoteService.instance.elapsed,
+                    builder: (context, elapsed, child) {
+                      final totalDuration =
+                          currentSong?.time?.toDouble() ?? 0.0;
+                      final currentElapsed = elapsed ?? 0.0;
+
+                      return ProgressSliderWidget(
+                        totalDuration: totalDuration,
+                        currentElapsed: currentElapsed,
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 30),
 
                   // Control Buttons Section
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Shuffle Button
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            isShuffled = !isShuffled;
-                          });
-                        },
-                        icon: Icon(
-                          Icons.shuffle,
-                          color: isShuffled
-                              ? const Color(0xFFE91E63)
-                              : Colors.grey,
-                          size: 28,
-                        ),
-                      ),
-
-                      // Previous Button
-                      IconButton(
-                        onPressed: onPreviousTrack,
-                        icon: const Icon(
-                          Icons.skip_previous,
-                          color: Colors.white,
-                          size: 36,
-                        ),
-                      ),
-
-                      // Play/Pause Button
-                      ValueListenableBuilder(
-                        valueListenable: MpdRemoteService.instance.isPlaying,
-                        builder: (context, isPlaying, child) => Container(
-                          width: 64,
-                          height: 64,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFE91E63),
-                            shape: BoxShape.circle,
-                          ),
-                          child: IconButton(
-                            onPressed: onPlayPause,
-                            icon: Icon(
-                              isPlaying ? Icons.pause : Icons.play_arrow,
-                              color: Colors.white,
-                              size: 32,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Next Button
-                      IconButton(
-                        onPressed: onNextTrack,
-                        icon: const Icon(
-                          Icons.skip_next,
-                          color: Colors.white,
-                          size: 36,
-                        ),
-                      ),
-
-                      // Repeat Button
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            isRepeated = !isRepeated;
-                          });
-                        },
-                        icon: Icon(
-                          Icons.repeat,
-                          color: isRepeated
-                              ? const Color(0xFFE91E63)
-                              : Colors.grey,
-                          size: 28,
-                        ),
-                      ),
-                    ],
-                  ),
+                  const ControlButtonsWidget(),
 
                   const SizedBox(height: 20),
 
@@ -279,10 +142,97 @@ class _PlayerScreenState extends State<PlayerScreen> {
       ),
     );
   }
+}
 
-  String _formatTime(double seconds) {
-    final minutes = (seconds / 60).floor();
-    final remainingSeconds = (seconds % 60).floor();
-    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
+class ControlButtonsWidget extends StatefulWidget {
+  const ControlButtonsWidget({super.key});
+
+  @override
+  State<ControlButtonsWidget> createState() => _ControlButtonsWidgetState();
+}
+
+class _ControlButtonsWidgetState extends State<ControlButtonsWidget> {
+  bool isShuffled = false;
+  bool isRepeated = false;
+
+  Future<void> _onPreviousTrack() async {
+    await MpdRemoteService.instance.client.previous();
+  }
+
+  Future<void> _onNextTrack() async {
+    await MpdRemoteService.instance.client.next();
+  }
+
+  Future<void> _onPlayPause() async {
+    await MpdRemoteService.instance.client.pause();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        // Shuffle Button
+        IconButton(
+          onPressed: () {
+            setState(() {
+              isShuffled = !isShuffled;
+            });
+          },
+          icon: Icon(
+            Icons.shuffle,
+            color: isShuffled ? const Color(0xFFE91E63) : Colors.grey,
+            size: 28,
+          ),
+        ),
+
+        // Previous Button
+        IconButton(
+          onPressed: _onPreviousTrack,
+          icon: const Icon(Icons.skip_previous, color: Colors.white, size: 36),
+        ),
+
+        // Play/Pause Button
+        ValueListenableBuilder(
+          valueListenable: MpdRemoteService.instance.isPlaying,
+          builder: (context, isPlaying, child) => Container(
+            width: 64,
+            height: 64,
+            decoration: const BoxDecoration(
+              color: Color(0xFFE91E63),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              onPressed: _onPlayPause,
+              icon: Icon(
+                isPlaying ? Icons.pause : Icons.play_arrow,
+                color: Colors.white,
+                size: 32,
+              ),
+            ),
+          ),
+        ),
+
+        // Next Button
+        IconButton(
+          onPressed: _onNextTrack,
+          icon: const Icon(Icons.skip_next, color: Colors.white, size: 36),
+        ),
+
+        // Repeat Button
+        IconButton(
+          onPressed: () {
+            setState(() {
+              isRepeated = !isRepeated;
+            });
+          },
+          icon: Icon(
+            Icons.repeat,
+            color: isRepeated ? const Color(0xFFE91E63) : Colors.grey,
+            size: 28,
+          ),
+        ),
+      ],
+    );
   }
 }
