@@ -221,7 +221,7 @@ class _ControlButtonsWidgetState extends State<ControlButtonsWidget> {
             height: 50,
             decoration: BoxDecoration(
               color: const Color(0xFF314B17),
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(25),
             ),
             child: IconButton(
               onPressed: _onPlayPause,
