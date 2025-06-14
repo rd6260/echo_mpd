@@ -25,46 +25,51 @@ import 'package:flutter/foundation.dart';
 /// await MpdRemoteService.instance.client.play();
 /// ```
 class MpdRemoteService {
-  /// Private constructor for singleton pattern
+  // ==========================================
+  // SINGLETON PATTERN
+  // ==========================================
+  
   MpdRemoteService._();
-
-  /// Singleton instance of [MpdRemoteService]
   static final MpdRemoteService _instance = MpdRemoteService._();
-
-  /// Gets the singleton instance of [MpdRemoteService]
   static MpdRemoteService get instance => _instance;
 
-  /// Client for interacting with mpd
+  // ==========================================
+  // PRIVATE FIELDS
+  // ==========================================
+  
+  // MPD Connection
   MpdClient? _client;
-
-  /// Client for polling for changes in mpd server
   MpdClient? _statusClient;
-  bool _isInitialized = false;
-  bool _isPolling = false;
   String? _host;
   int? _port;
   
-  /// Timer for updating elapsed time every second during playback
+  // State Management
+  bool _isInitialized = false;
+  bool _isPolling = false;
   Timer? _elapsedTimer;
 
-  // Public notifiers for state management
-
-  /// Notifies listeners when the current song changes
-  ///
-  /// Value is `null` when no song is playing or when disconnected
+  // ==========================================
+  // PUBLIC NOTIFIERS
+  // ==========================================
+  
+  /// Current song being played (null when no song is playing or disconnected)
   final ValueNotifier<MpdSong?> currentSong = ValueNotifier(null);
-
-  /// Notifies listeners when the connection status changes
+  
+  /// Connection status to MPD server
   final ValueNotifier<bool> isConnected = ValueNotifier(false);
-
-  /// Notifies listeners when player is playing or pause
+  
+  /// Player state (playing/paused)
   final ValueNotifier<bool> isPlaying = ValueNotifier(false);
-
-  /// Notifies listeners when the current playlist (queue) changes
+  
+  /// Current playlist (queue) content
   final ValueNotifier<List<MpdSong>> currentPlaylist = ValueNotifier([]);
-
-  /// Notifies listeners for elapsed time of playing song
+  
+  /// Elapsed time of current song in seconds
   final ValueNotifier<double?> elapsed = ValueNotifier(null);
+
+  // ==========================================
+  // PUBLIC API - INITIALIZATION
+  // ==========================================
 
   /// Initializes the MPD service with the specified connection details
   ///
@@ -73,18 +78,6 @@ class MpdRemoteService {
   ///
   /// Throws [StateError] if already initialized
   /// Throws [MpdException] or [SocketException] on connection failure
-  ///
-  /// Example:
-  /// ```dart
-  /// try {
-  ///   await MpdRemoteService.instance.initialize(
-  ///     host: '192.168.1.100',
-  ///     port: 6600
-  ///   );
-  /// } catch (e) {
-  ///   print('Failed to connect to MPD: $e');
-  /// }
-  /// ```
   Future<void> initialize({required String host, required int port}) async {
     if (_isInitialized) {
       throw StateError('MpdRemoteService is already initialized');
@@ -108,33 +101,159 @@ class MpdRemoteService {
     }
   }
 
-  /// Creates the MPD client instances
+  /// Reinitializes the service with the same connection details
+  ///
+  /// Useful for recovering from connection issues or resetting service state
+  /// Throws [StateError] if the service was never initialized
+  Future<void> reconnect() async {
+    if (_host == null || _port == null) {
+      throw StateError('Cannot reconnect: service was never initialized');
+    }
+
+    dispose();
+    await initialize(host: _host!, port: _port!);
+  }
+
+  /// Disposes the service and cleans up all resources
+  ///
+  /// After calling this method, you need to call [initialize] again to use the service.
+  /// This should be called when the app is disposed or when resetting the service.
+  void dispose() {
+    _isInitialized = false;
+    _cleanup();
+
+    // Dispose ValueNotifiers to prevent memory leaks
+    currentSong.dispose();
+    isConnected.dispose();
+    isPlaying.dispose();
+    currentPlaylist.dispose();
+    elapsed.dispose();
+
+    debugPrint('MPD Service disposed');
+  }
+
+  // ==========================================
+  // PUBLIC API - CLIENT ACCESS
+  // ==========================================
+
+  /// Gets the main MPD client for sending commands
+  ///
+  /// Throws [StateError] if the service is not initialized
+  MpdClient get client {
+    if (!_isInitialized || _client == null) {
+      throw StateError('MpdRemoteService not initialized. Call initialize() first.');
+    }
+    return _client!;
+  }
+
+  // ==========================================
+  // PUBLIC API - GETTERS
+  // ==========================================
+
+  /// Returns whether the service has been initialized
+  bool get isInitialized => _isInitialized;
+
+  /// Returns the current MPD server hostname
+  String? get host => _host;
+
+  /// Returns the current MPD server port
+  int? get port => _port;
+
+  // ==========================================
+  // PUBLIC API - PLAYBACK CONTROL
+  // ==========================================
+
+  /// Seeks to a specific position in the current song
+  ///
+  /// [position] - The position to seek to in seconds
+  Future<void> seekToPosition(double position) async {
+    if (_client == null) {
+      throw StateError('MpdRemoteService not initialized');
+    }
+
+    try {
+      await _client!.seekcur(position.toString());
+      elapsed.value = position; // Immediate UI feedback
+      debugPrint('Seeked to position: ${position.toStringAsFixed(1)}s');
+    } catch (e) {
+      debugPrint('Failed to seek to position $position: $e');
+      rethrow;
+    }
+  }
+
+  /// Seeks by a relative amount from the current position
+  ///
+  /// [offset] - The offset in seconds (positive for forward, negative for backward)
+  Future<void> seekRelative(double offset) async {
+    if (_client == null) {
+      throw StateError('MpdRemoteService not initialized');
+    }
+
+    try {
+      final currentElapsed = elapsed.value ?? 0.0;
+      final newPosition = (currentElapsed + offset).clamp(0.0, double.maxFinite);
+      await seekToPosition(newPosition);
+    } catch (e) {
+      debugPrint('Failed to seek by relative offset $offset: $e');
+      rethrow;
+    }
+  }
+
+  // ==========================================
+  // PUBLIC API - MANUAL REFRESH
+  // ==========================================
+
+  /// Forces an update of the current playlist
+  ///
+  /// Useful when you want to refresh without waiting for automatic updates
+  Future<void> refreshPlaylist() async {
+    await _updateCurrentPlaylist();
+  }
+
+  /// Forces an update of the current song
+  ///
+  /// Useful when you want to refresh without waiting for automatic updates
+  Future<void> refreshCurrentSong() async {
+    await _updateCurrentSong();
+  }
+
+  /// Forces an update of the player status including elapsed time
+  ///
+  /// Useful when you want to refresh without waiting for automatic updates
+  Future<void> refreshPlayerStatus() async {
+    await _updatePlayerStatus();
+  }
+
+  // ==========================================
+  // PRIVATE - INITIALIZATION HELPERS
+  // ==========================================
+
+  /// Creates the MPD client instances for main operations and status polling
   Future<void> _createClients(String host, int port) async {
     final connectionDetails = MpdConnectionDetails(host: host, port: port);
-
     _client = MpdClient(connectionDetails: connectionDetails);
     _statusClient = MpdClient(connectionDetails: connectionDetails);
   }
 
-  /// Initializes the service state by fetching current song, playlist and other data
+  /// Initializes the service state by fetching current data from MPD
   Future<void> _initializeState() async {
     if (_client == null) return;
 
-    // Test connection and fetch initial state
     currentSong.value = await _client!.currentsong();
     isConnected.value = _client!.connection.isConnected;
     await _updatePlayerStatus();
     await _updateCurrentPlaylist();
-    
-    
   }
+
+  // ==========================================
+  // PRIVATE - STATUS POLLING
+  // ==========================================
 
   /// Starts the background status polling using MPD's idle command
   void _startStatusPolling() {
     if (_isPolling) return;
-
+    
     _isPolling = true;
-    // Use microtask to avoid blocking the current execution
     Future.microtask(_statusPollingLoop);
   }
 
@@ -142,23 +261,20 @@ class MpdRemoteService {
   Future<void> _statusPollingLoop() async {
     while (_isInitialized && _statusClient != null && _isPolling) {
       try {
-        // Wait for changes in any MPD subsystem
         final changes = await _statusClient!.idle();
-
+        
         if (!_isInitialized || !_isPolling) break;
-
+        
         await _handleSubsystemChanges(changes);
       } catch (e) {
         debugPrint('MPD polling error: $e');
         isConnected.value = false;
-
-        // Attempt reconnection after delay
         await _attemptReconnection();
       }
     }
   }
 
-  /// Handles changes in MPD subsystems
+  /// Handles changes in MPD subsystems and updates corresponding state
   Future<void> _handleSubsystemChanges(Set<MpdSubsystem> changes) async {
     for (final change in changes) {
       debugPrint('MPD subsystem changed: $change');
@@ -174,22 +290,18 @@ class MpdRemoteService {
           break;
 
         case MpdSubsystem.database:
-          // Database was updated (new songs added, etc.)
           debugPrint('MPD database updated');
           break;
 
         case MpdSubsystem.mixer:
-          // Volume or other mixer settings changed
           debugPrint('MPD mixer settings changed');
           break;
 
         case MpdSubsystem.output:
-          // Audio output configuration changed
           debugPrint('MPD output configuration changed');
           break;
 
         case MpdSubsystem.options:
-          // Playback options changed (repeat, random, etc.)
           debugPrint('MPD playback options changed');
           break;
 
@@ -201,14 +313,17 @@ class MpdRemoteService {
         case MpdSubsystem.message:
         case MpdSubsystem.neighbor:
         case MpdSubsystem.mount:
-          // Handle other subsystem changes as needed
           debugPrint('MPD subsystem $change changed (not handled)');
           break;
       }
     }
   }
 
-  /// Updates the current song information
+  // ==========================================
+  // PRIVATE - STATE UPDATES
+  // ==========================================
+
+  /// Updates the current song information from MPD
   Future<void> _updateCurrentSong() async {
     if (_client == null) return;
 
@@ -219,7 +334,7 @@ class MpdRemoteService {
     }
   }
 
-  /// Updates the current playlist (queue) information
+  /// Updates the current playlist (queue) information from MPD
   Future<void> _updateCurrentPlaylist() async {
     if (_client == null) return;
 
@@ -231,16 +346,15 @@ class MpdRemoteService {
     }
   }
 
-  /// Updates to be done when Player Status changes (Play, Pause, Stoped)
-  ///
-  ///  - Updates value of `isPlaying` ValueNotifier.
+  /// Updates player status (play/pause state, elapsed time) and manages elapsed timer
   Future<void> _updatePlayerStatus() async {
-    MpdStatus serverStatus = await _client!.status();
+    final serverStatus = await _client!.status();
     final wasPlaying = isPlaying.value;
+    
     isPlaying.value = serverStatus.state == MpdState.play;
     elapsed.value = serverStatus.elapsed;
     
-    // Start or stop the elapsed timer based on playing state
+    // Manage elapsed timer based on playing state
     if (isPlaying.value && !wasPlaying) {
       _startElapsedTimer();
     } else if (!isPlaying.value && wasPlaying) {
@@ -248,28 +362,30 @@ class MpdRemoteService {
     }
   }
 
+  // ==========================================
+  // PRIVATE - ELAPSED TIME MANAGEMENT
+  // ==========================================
+
   /// Starts a timer to update elapsed time every second during playback
   void _startElapsedTimer() {
     _stopElapsedTimer(); // Stop any existing timer
     
     _elapsedTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (isPlaying.value && elapsed.value != null) {
-        final currentElapsed = elapsed.value!;
-        final currentSongDuration = currentSong.value?.time?.toDouble();
-        
-        // Increment elapsed time by 1 second
-        final newElapsed = currentElapsed + 1.0;
-        
-        // Stop timer if we've reached the end of the song
-        if (currentSongDuration != null && newElapsed >= currentSongDuration) {
-          elapsed.value = currentSongDuration;
-          _stopElapsedTimer();
-        } else {
-          elapsed.value = newElapsed;
-        }
-      } else {
-        // Stop timer if not playing
+      if (!isPlaying.value || elapsed.value == null) {
         _stopElapsedTimer();
+        return;
+      }
+
+      final currentElapsed = elapsed.value!;
+      final songDuration = currentSong.value?.time?.toDouble();
+      final newElapsed = currentElapsed + 1.0;
+      
+      // Check if we've reached the end of the song
+      if (songDuration != null && newElapsed >= songDuration) {
+        elapsed.value = songDuration;
+        _stopElapsedTimer();
+      } else {
+        elapsed.value = newElapsed;
       }
     });
   }
@@ -280,78 +396,22 @@ class MpdRemoteService {
     _elapsedTimer = null;
   }
 
-  /// Seeks to a specific position in the current song
-  ///
-  /// [position] - The position to seek to in seconds
-  ///
-  /// Example:
-  /// ```dart
-  /// // Seek to 30 seconds into the current song
-  /// await MpdRemoteService.instance.seekToPosition(30.0);
-  /// ```
-  Future<void> seekToPosition(double position) async {
-    if (_client == null) {
-      throw StateError('MpdRemoteService not initialized');
-    }
-
-    try {
-      // MPD's seekcur command seeks to a position in the current song
-      await _client!.seekcur(position.toString());
-      
-      // Update the elapsed time immediately to provide responsive UI feedback
-      elapsed.value = position;
-      
-      debugPrint('Seeked to position: ${position.toStringAsFixed(1)}s');
-    } catch (e) {
-      debugPrint('Failed to seek to position $position: $e');
-      rethrow;
-    }
-  }
-
-  /// Seeks by a relative amount from the current position
-  ///
-  /// [offset] - The offset in seconds (positive for forward, negative for backward)
-  ///
-  /// Example:
-  /// ```dart
-  /// // Seek forward by 10 seconds
-  /// await MpdRemoteService.instance.seekRelative(10.0);
-  /// 
-  /// // Seek backward by 5 seconds
-  /// await MpdRemoteService.instance.seekRelative(-5.0);
-  /// ```
-  Future<void> seekRelative(double offset) async {
-    if (_client == null) {
-      throw StateError('MpdRemoteService not initialized');
-    }
-
-    try {
-      final currentElapsed = elapsed.value ?? 0.0;
-      final newPosition = (currentElapsed + offset).clamp(0.0, double.maxFinite);
-      
-      await seekToPosition(newPosition);
-    } catch (e) {
-      debugPrint('Failed to seek by relative offset $offset: $e');
-      rethrow;
-    }
-  }
+  // ==========================================
+  // PRIVATE - CONNECTION MANAGEMENT
+  // ==========================================
 
   /// Attempts to reconnect to the MPD server after a connection failure
   Future<void> _attemptReconnection() async {
     if (_host == null || _port == null) return;
 
-    // Wait before attempting reconnection
     await Future.delayed(const Duration(seconds: 5));
-
+    
     if (!_isInitialized) return; // Service was disposed
 
     try {
       debugPrint('Attempting to reconnect to MPD...');
-
-      // Reinitialize the service
       _cleanup();
       await initialize(host: _host!, port: _port!);
-
       debugPrint('Successfully reconnected to MPD');
     } catch (e) {
       debugPrint('MPD reconnection failed: $e');
@@ -359,106 +419,11 @@ class MpdRemoteService {
     }
   }
 
-  /// Gets the main MPD client for sending commands
-  ///
-  /// Throws [StateError] if the service is not initialized
-  ///
-  /// Example:
-  /// ```dart
-  /// final client = MpdRemoteService.instance.client;
-  /// await client.play();
-  /// await client.pause();
-  /// ```
-  MpdClient get client {
-    if (!_isInitialized || _client == null) {
-      throw StateError(
-        'MpdRemoteService not initialized. Call initialize() first.',
-      );
-    }
-    return _client!;
-  }
-
-  /// Returns whether the service has been initialized
-  bool get isInitialized => _isInitialized;
-
-  /// Returns the current MPD server hostname
-  String? get host => _host;
-
-  /// Returns the current MPD server port
-  int? get port => _port;
-
-  /// Forces an update of the current playlist
-  ///
-  /// This method is useful when you want to refresh the playlist
-  /// without waiting for the automatic update from MPD's idle command
-  Future<void> refreshPlaylist() async {
-    await _updateCurrentPlaylist();
-  }
-
-  /// Forces an update of the current song
-  ///
-  /// This method is useful when you want to refresh the current song
-  /// without waiting for the automatic update from MPD's idle command
-  Future<void> refreshCurrentSong() async {
-    await _updateCurrentSong();
-  }
-
-  /// Forces an update of the player status including elapsed time
-  ///
-  /// This method is useful when you want to refresh the elapsed time
-  /// without waiting for the automatic update from MPD's idle command
-  Future<void> refreshPlayerStatus() async {
-    await _updatePlayerStatus();
-  }
-
-  /// Cleans up internal resources
+  /// Cleans up internal resources without disposing ValueNotifiers
   void _cleanup() {
     _isPolling = false;
     _stopElapsedTimer();
     _client = null;
     _statusClient = null;
-  }
-
-  /// Disposes the service and cleans up all resources
-  ///
-  /// After calling this method, you need to call [initialize] again
-  /// to use the service. This method should be called when the app
-  /// is being disposed or when you want to completely reset the service.
-  ///
-  /// Example:
-  /// ```dart
-  /// @override
-  /// void dispose() {
-  ///   MpdRemoteService.instance.dispose();
-  ///   super.dispose();
-  /// }
-  /// ```
-  void dispose() {
-    _isInitialized = false;
-    _cleanup();
-
-    // Dispose ValueNotifiers to prevent memory leaks
-    currentSong.dispose();
-    isConnected.dispose();
-    isPlaying.dispose();
-    currentPlaylist.dispose();
-    elapsed.dispose();
-
-    debugPrint('MPD Service disposed');
-  }
-
-  /// Reinitializes the service with the same connection details
-  ///
-  /// This is useful for recovering from connection issues or
-  /// when you want to reset the service state.
-  ///
-  /// Throws [StateError] if the service was never initialized
-  Future<void> reconnect() async {
-    if (_host == null || _port == null) {
-      throw StateError('Cannot reconnect: service was never initialized');
-    }
-
-    dispose();
-    await initialize(host: _host!, port: _port!);
   }
 }
