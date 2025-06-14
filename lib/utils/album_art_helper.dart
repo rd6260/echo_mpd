@@ -6,8 +6,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:echo_mpd/service/lastfm_service.dart';
 
 Future<String?> getAlbumArtPath(String albumArtist, String album) async {
-
-  // print("DEV: looking for | $albumArtist | $album");
   try {
     // Get cache directory
     final Directory cacheDir = await getTemporaryDirectory();
@@ -30,9 +28,17 @@ Future<String?> getAlbumArtPath(String albumArtist, String album) async {
       return null;
     }
 
+    // Try to get higher resolution version first
+    String? downloadUrl = _getHigherResolutionUrl(albumArtUrl);
+    
     // Download and save album art to cache
     try {
-      final http.Response response = await http.get(Uri.parse(albumArtUrl));
+      http.Response response = await http.get(Uri.parse(downloadUrl));
+
+      // If higher resolution fails (404), try original URL
+      if (response.statusCode == 404 && downloadUrl != albumArtUrl) {
+        response = await http.get(Uri.parse(albumArtUrl));
+      }
 
       if (response.statusCode == 200) {
         await file.writeAsBytes(response.bodyBytes);
@@ -53,47 +59,13 @@ Future<String?> getAlbumArtPath(String albumArtist, String album) async {
   }
 }
 
-// Future<String?> fetchAlbumArtUrl(String albumArtist, String album) async {
-//   // Step 1: Search MusicBrainz for the release
-//   final searchUrl = Uri.parse(
-//     'https://musicbrainz.org/ws/2/release/?query=album:"$album" AND artist:"$albumArtist"&fmt=json',
-//   );
-
-//   final searchResponse = await http.get(searchUrl);
-
-//   if (searchResponse.statusCode != 200) {
-//     print('DEV: FAILD TO FETCH ALBUL ART | $albumArtist | $album');
-//     return null;
-//   }
-
-//   final searchData = json.decode(searchResponse.body);
-//   final releases = searchData['releases'] as List<dynamic>;
-
-//   if (releases.isEmpty) {
-//     print('DEV: No releases found | $albumArtist | $album');
-//     return null;
-//   }
-
-//   final mbid = releases[0]['id'];
-
-//   // Step 2: Get cover art from Cover Art Archive
-//   final coverUrl = Uri.parse('https://coverartarchive.org/release/$mbid');
-
-//   final coverResponse = await http.get(coverUrl);
-
-//   if (coverResponse.statusCode != 200) {
-//     print('DEV: No cover art found | $albumArtist | $album');
-//     return null;
-//   }
-
-//   final coverData = json.decode(coverResponse.body);
-//   final images = coverData['images'] as List<dynamic>;
-
-//   if (images.isEmpty || images[0]['image'] == null) {
-//     print('DEV: No images in cover data | $albumArtist | $album');
-//     return null;
-//   }
-
-//   return images[0]['image'];
-// }
-
+/// Replaces 300x300 with 600x600 in the album art URL if possible
+String _getHigherResolutionUrl(String originalUrl) {
+  // Check if URL contains 300x300 pattern
+  if (originalUrl.contains('300x300')) {
+    return originalUrl.replaceAll('300x300', '600x600');
+  }
+  
+  // Return original URL if no 300x300 pattern found
+  return originalUrl;
+}
