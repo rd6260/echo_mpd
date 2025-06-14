@@ -109,7 +109,7 @@ class AnimatedWavySlider extends StatefulWidget {
   final double waveFrequency; // Controls wave period
 
   const AnimatedWavySlider({
-    Key? key,
+    super.key,
     required this.value,
     this.onChanged,
     this.onChangeStart,
@@ -120,10 +120,10 @@ class AnimatedWavySlider extends StatefulWidget {
     this.width = 250,
     this.height = 40,
     this.waveFrequency = 6.0, // Default frequency
-  }) : super(key: key);
+  });
 
   @override
-  _AnimatedWavySliderState createState() => _AnimatedWavySliderState();
+  State<AnimatedWavySlider> createState() => _AnimatedWavySliderState();
 }
 
 class _AnimatedWavySliderState extends State<AnimatedWavySlider>
@@ -151,7 +151,7 @@ class _AnimatedWavySliderState extends State<AnimatedWavySlider>
       _isDragging = true;
     });
 
-    RenderBox renderBox = context.findRenderObject() as RenderBox;
+    // RenderBox renderBox = context.findRenderObject() as RenderBox;
     double localX = details.localPosition.dx;
     double newValue = (localX / widget.width).clamp(0.0, 1.0);
 
@@ -159,7 +159,7 @@ class _AnimatedWavySliderState extends State<AnimatedWavySlider>
   }
 
   void _handlePanUpdate(DragUpdateDetails details) {
-    RenderBox renderBox = context.findRenderObject() as RenderBox;
+    // RenderBox renderBox = context.findRenderObject() as RenderBox;
     double localX = details.localPosition.dx;
     double newValue = (localX / widget.width).clamp(0.0, 1.0);
 
@@ -175,7 +175,7 @@ class _AnimatedWavySliderState extends State<AnimatedWavySlider>
   }
 
   void _handleTapDown(TapDownDetails details) {
-    RenderBox renderBox = context.findRenderObject() as RenderBox;
+    // RenderBox renderBox = context.findRenderObject() as RenderBox;
     double localX = details.localPosition.dx;
     double newValue = (localX / widget.width).clamp(0.0, 1.0);
 
@@ -191,7 +191,7 @@ class _AnimatedWavySliderState extends State<AnimatedWavySlider>
       onPanUpdate: _handlePanUpdate,
       onPanEnd: _handlePanEnd,
       onTapDown: _handleTapDown,
-      child: Container(
+      child: SizedBox(
         width: widget.width,
         height: widget.height,
         child: AnimatedBuilder(
@@ -301,7 +301,7 @@ class AnimatedWavySliderPainter extends CustomPainter {
       // Draw thumb glow when dragging
       if (isDragging) {
         final glowPaint = Paint()
-          ..color = activeColor.withOpacity(0.3)
+          ..color = activeColor.withValues(alpha: 0.3)
           ..style = PaintingStyle.fill;
 
         canvas.drawCircle(Offset(thumbX, thumbY), thumbRadius + 6, glowPaint);
