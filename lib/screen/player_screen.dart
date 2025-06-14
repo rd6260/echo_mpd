@@ -29,22 +29,25 @@ class PlayerScreen extends StatelessWidget {
                   Expanded(
                     flex: 3,
                     child: Center(
-                      child: Container(
-                        width: 280,
-                        height: 280,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.3),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: AlbumArtWidget(song: currentSong),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Container(
+                          width: double.infinity,
+                          // height: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.3),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: AlbumArtWidget(song: currentSong),
+                          ),
                         ),
                       ),
                     ),
@@ -99,7 +102,7 @@ class PlayerScreen extends StatelessWidget {
                           // Handle favorite
                         },
                         icon: const Icon(
-                          Icons.favorite_border,
+                          Icons.favorite,
                           color: Colors.white,
                           size: 28,
                         ),

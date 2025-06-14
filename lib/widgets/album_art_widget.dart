@@ -29,11 +29,11 @@ class AlbumArtWidget extends StatelessWidget {
     if (albumArtist != null && album != null) {
       String? filePath = await getAlbumArtPath(albumArtist, album);
 
+      // If file path is available, show the image
       if (filePath != null) {
-        // If file path is available, show the image
         return Image.file(
           File(filePath),
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
           errorBuilder: (context, error, stackTrace) {
             return _buildPlaceholder();
           },
