@@ -56,7 +56,7 @@ class PlayerScreen extends StatelessWidget {
                   Column(
                     children: [
                       Text(
-                        currentSong?.title?.join("") ?? "N/A",
+                        currentSong?.title?.join("") ?? "Not Available",
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 28,
@@ -65,7 +65,7 @@ class PlayerScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        currentSong?.artist?.join("/") ?? "",
+                        currentSong?.artist?.join("/") ?? "Not Available",
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 18,
