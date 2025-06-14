@@ -52,64 +52,48 @@ class PlayerScreen extends StatelessWidget {
 
                   const SizedBox(height: 40),
 
-                  // Song Info Section
-                  Column(
-                    children: [
-                      Text(
-                        currentSong?.title?.join("") ?? "Not Available",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        currentSong?.artist?.join("/") ?? "Not Available",
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 18,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        currentSong?.album?.join("") ?? "",
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 40),
-
-                  // Progress Bar Section
-                  ValueListenableBuilder<double?>(
-                    valueListenable: MpdRemoteService.instance.elapsed,
-                    builder: (context, elapsed, child) {
-                      final totalDuration =
-                          currentSong?.time?.toDouble() ?? 0.0;
-                      final currentElapsed = elapsed ?? 0.0;
-
-                      return ProgressSliderWidget(
-                        totalDuration: totalDuration,
-                        currentElapsed: currentElapsed,
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  // Control Buttons Section
-                  const ControlButtonsWidget(),
-
-                  const SizedBox(height: 20),
-
-                  // Bottom Action Buttons
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // Song Info Section
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              currentSong?.title?.join("") ?? "Not Available",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            // const SizedBox(height: 8),
+                            Text(
+                              currentSong?.artist?.join("/") ?? "Not Available",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: const TextStyle(
+                                // color: Colors.grey,
+                                color: Color(0xFF314B17),
+                                fontSize: 16,
+                              ),
+                            ),
+                            // const SizedBox(height: 4),
+                            Text(
+                              currentSong?.album?.join("") ?? "",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // `Favourite` and `More` Button
                       IconButton(
                         onPressed: () {
                           // Handle favorite
@@ -134,6 +118,36 @@ class PlayerScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 20),
+
+                  // Progress Bar Section
+                  ValueListenableBuilder<double?>(
+                    valueListenable: MpdRemoteService.instance.elapsed,
+                    builder: (context, elapsed, child) {
+                      final totalDuration =
+                          currentSong?.time?.toDouble() ?? 0.0;
+                      final currentElapsed = elapsed ?? 0.0;
+
+                      return ProgressSliderWidget(
+                        totalDuration: totalDuration,
+                        currentElapsed: currentElapsed,
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Control Buttons Section
+                  const ControlButtonsWidget(),
+
+                  const SizedBox(height: 20),
+
+                  // Bottom Action Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [],
+                  ),
+
+                  const SizedBox(height: 70),
                 ],
               );
             },
@@ -196,11 +210,11 @@ class _ControlButtonsWidgetState extends State<ControlButtonsWidget> {
         ValueListenableBuilder(
           valueListenable: MpdRemoteService.instance.isPlaying,
           builder: (context, isPlaying, child) => Container(
-            width: 64,
-            height: 64,
-            decoration: const BoxDecoration(
-              color: Color(0xFF314B17),
-              shape: BoxShape.circle,
+            width: 80,
+            height: 50,
+            decoration: BoxDecoration(
+              color: const Color(0xFF314B17),
+              borderRadius: BorderRadius.circular(30),
             ),
             child: IconButton(
               onPressed: _onPlayPause,
