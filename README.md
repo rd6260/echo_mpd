@@ -6,33 +6,41 @@ A clean, modern, and feature-rich mobile remote for [MPD (Music Player Daemon)](
 
 ---
 
-## ✨ Features (Planned & In Progress)
-
-- 🔹 Modern UI with smooth transitions
-- 🔹 Intuitive browsing by artist, album, genre, and playlist
-- 🔹 High quality album art support (last.fm)
-
----
-
 ## 📸 Screenshots
 
 > Early preview –
 
 ![App Preview Screenshot](src/screenshots/app_preview.png)
 
+---
+
+## ✨ Features
+
+- Modern UI with smooth transitions
+- Intuitive browsing by artist, album, genre, and playlist
+- High quality album art support (last.fm)
+
+---
+
+## 📝 TODOs & 🐞 Known Issues
+
+### 🧩 Features & Improvements
+- 🎨 Design and add a proper app logo  
+- 📱 Add missing screens to complete the UI flow  
+- 🎵 Implement playlist management functionality  
+- 🎨 Develop a consistent theme management system  
+
+### 🐞 Known Issues
+*(No major issues reported yet)*  
+
 
 ---
 
 ## Credits
 
-- **Flutter**
+- **Flutter** App framework
 - **dart_mpd** dart package for communication with MPD server
-
----
-
-## 🧠 Why This Project?
-
-Existing mobile MPD clients like **MALP** and **MPDroid** are powerful but feel outdated in terms of design and user experience. This project aims to bring a **fresh, responsive, and beautiful** remote control app to the MPD ecosystem, built for everyday use in 2025 and beyond.
+- **Last.fm** for high quality album arts
 
 ---
 
@@ -45,12 +53,6 @@ Contributions, ideas, and feedback are always welcome!
 - 📱 Test on different devices and share feedback
 
 > To get involved, open an issue or discussion thread. PRs coming soon when the codebase is ready.
-
----
-
-## 📃 License
-
-[MIT License](LICENSE)
 
 ---
 
