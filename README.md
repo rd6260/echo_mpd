@@ -12,7 +12,7 @@ A clean, modern, and feature-rich mobile remote for [MPD (Music Player Daemon)](
 
 ![App Preview Screenshot](src/screenshots/app_preview.png)
 
----
+
 
 ## ✨ Features
 
@@ -20,7 +20,7 @@ A clean, modern, and feature-rich mobile remote for [MPD (Music Player Daemon)](
 - Intuitive browsing by artist, album, genre, and playlist
 - High quality album art support (last.fm)
 
----
+
 
 ## 📝 TODOs & 🐞 Known Issues
 
@@ -33,16 +33,6 @@ A clean, modern, and feature-rich mobile remote for [MPD (Music Player Daemon)](
 ### 🐞 Known Issues
 *(No major issues reported yet)*  
 
-
----
-
-## Credits
-
-- **Flutter** App framework
-- **dart_mpd** dart package for communication with MPD server
-- **Last.fm** for high quality album arts
-
----
 
 ## 🤝 Contributing
 
@@ -60,4 +50,5 @@ Contributions, ideas, and feedback are always welcome!
 
 - [Music Player Daemon](https://www.musicpd.org/)
 - Inspiration from MPDroid, MALP, and other FOSS projects
+- **Last.fm** for high quality album arts
 
