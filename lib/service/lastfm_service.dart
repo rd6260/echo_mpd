@@ -19,7 +19,7 @@ class ImageInfo {
 
 class LastfmService {
   static const String _baseUrl = 'http://ws.audioscrobbler.com/2.0/';
-  static const String apiKey = LastfmApiKey;
+  static final String apiKey = lastfmApiKey;
 
   LastfmService();
 

@@ -26,20 +26,18 @@ class AlbumArtWidget extends StatelessWidget {
     String? albumArtist = currentSong?.albumArtist?[0];
     String? album = currentSong?.album?[0];
 
-    if (albumArtist != null && album != null) {
-      String? filePath = await getAlbumArtPath(albumArtist, album);
+    if (album != null) {
+      String? filePath = await getAlbumArtPath(albumArtist!, album);
 
       // If file path is available, show the image
-      if (filePath != null) {
-        return Image.file(
-          File(filePath),
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return _buildPlaceholder();
-          },
-        );
-      }
-    }
+      return Image.file(
+        File(filePath!),
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholder();
+        },
+      );
+        }
     return _buildPlaceholder();
   }
 

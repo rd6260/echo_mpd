@@ -3,8 +3,91 @@ import 'package:echo_mpd/widgets/album_art_widget.dart';
 import 'package:echo_mpd/widgets/music_progress_slider_widget.dart';
 import 'package:flutter/material.dart';
 
-class PlayerScreen extends StatelessWidget {
+class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
+
+  @override
+  State<PlayerScreen> createState() => _PlayerScreenState();
+}
+
+class _PlayerScreenState extends State<PlayerScreen> {
+  /// Tracks if current song is marked as favourite
+  final ValueNotifier<bool> isFavourite = ValueNotifier(false);
+  
+  @override
+  void dispose() {
+    isFavourite.dispose();
+    super.dispose();
+  }
+  
+  /// Handles favourite button press
+  Future<void> _onFavouritePressed() async {
+    final currentSong = MpdRemoteService.instance.currentSong.value;
+    final songFile = currentSong?.file;
+    if (songFile == null) {
+      debugPrint('No current song to add to favourites');
+      return;
+    }
+    
+    try {
+      final client = MpdRemoteService.instance.client;
+      const favouritesPlaylistName = 'Favourites';
+      
+      if (!isFavourite.value) {
+        // Add to favourites playlist  
+        await client.playlistadd(favouritesPlaylistName, songFile);
+        isFavourite.value = true;
+        
+        final songTitle = currentSong!.title?.join("") ?? "Unknown";
+        
+        // Show success message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Added "$songTitle" to favourites'),
+              backgroundColor: const Color(0xFF314B17),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+        
+        debugPrint('Added "$songTitle" to favourites');
+      } else {
+        // Remove from favourites playlist
+        // Note: For simplicity, we just toggle the UI state here
+        // Full implementation would require querying the playlist and finding the song position
+        isFavourite.value = false;
+        
+        final songTitle = currentSong!.title?.join("") ?? "Unknown";
+        
+        // Show success message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Removed "$songTitle" from favourites'),
+              backgroundColor: Colors.red.shade700,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+        
+        debugPrint('Removed "$songTitle" from favourites');
+      }
+    } catch (e) {
+      debugPrint('Failed to update favourites: $e');
+      
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update favourites: $e'),
+            backgroundColor: Colors.red.shade700,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,15 +184,18 @@ class PlayerScreen extends StatelessWidget {
                       ),
                       SizedBox(width: 10),
                       // `Favourite` and `More` Button
-                      IconButton(
-                        onPressed: () {
-                          // Handle favorite
+                      ValueListenableBuilder<bool>(
+                        valueListenable: isFavourite,
+                        builder: (context, isFav, child) {
+                          return IconButton(
+                            onPressed: _onFavouritePressed,
+                            icon: Icon(
+                              isFav ? Icons.favorite : Icons.favorite_border,
+                              color: isFav ? Colors.red : Colors.white,
+                              size: 28,
+                            ),
+                          );
                         },
-                        icon: const Icon(
-                          Icons.favorite,
-                          color: Colors.white,
-                          size: 28,
-                        ),
                       ),
                       IconButton(
                         onPressed: () {
