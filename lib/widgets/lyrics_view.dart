@@ -19,19 +19,14 @@ class _LyricsViewState extends State<LyricsView>
   int _currentLineIndex = 0;
 
   late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 80),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 0.4, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-
     _fetchLyrics();
   }
 
@@ -79,16 +74,15 @@ class _LyricsViewState extends State<LyricsView>
 
   void _scrollToCurrentLine(int lineIndex) {
     if (_scrollController.hasClients && _lyricsResult != null) {
-      const itemHeight = 60.0; // Approximate height of each lyric line
+      final screenHeight = MediaQuery.of(context).size.height;
+      const lineHeight = 50.0;
       final targetOffset =
-          lineIndex * itemHeight -
-          (_scrollController.position.viewportDimension / 2) +
-          (itemHeight / 2);
+          (lineIndex * lineHeight) - (screenHeight / 2) + (lineHeight / 2);
 
       _scrollController.animateTo(
         targetOffset.clamp(0.0, _scrollController.position.maxScrollExtent),
         duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+        curve: Curves.easeOutCubic,
       );
     }
   }
@@ -96,30 +90,34 @@ class _LyricsViewState extends State<LyricsView>
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.transparent,
+      color: Colors.black,
       child: ValueListenableBuilder<Duration?>(
         valueListenable: MpdRemoteService.instance.elapsed,
         builder: (context, elapsedDuration, child) {
           if (_isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white54,
+              ),
+            );
           }
 
           if (_lyricsResult == null || _lyricsResult!.lines.isEmpty) {
             return const Center(
               child: Text(
                 'No lyrics available',
-                style: TextStyle(color: Colors.white70, fontSize: 16),
+                style: TextStyle(color: Colors.white38, fontSize: 16),
               ),
             );
           }
 
           final newCurrentLineIndex = _getCurrentLineIndex(elapsedDuration);
 
-          // Trigger animation and scroll when line changes
           if (newCurrentLineIndex != _currentLineIndex) {
             _currentLineIndex = newCurrentLineIndex;
             _animationController.forward().then((_) {
-              _animationController.reverse();
+              _animationController.reset();
             });
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _scrollToCurrentLine(_currentLineIndex);
@@ -128,65 +126,58 @@ class _LyricsViewState extends State<LyricsView>
 
           return ListView.builder(
             controller: _scrollController,
-            padding: const EdgeInsets.symmetric(vertical: 100),
             itemCount: _lyricsResult!.lines.length,
             itemBuilder: (context, index) {
               final line = _lyricsResult!.lines[index];
               final isCurrentLine = index == _currentLineIndex;
+              final isPastLine = index < _currentLineIndex;
 
-              return AnimatedBuilder(
-                animation: _fadeAnimation,
-                builder: (context, child) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 8,
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                height: 50,
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 300),
+                  style: TextStyle(
+                    fontSize: isCurrentLine ? 22 : 16,
+                    fontWeight: isCurrentLine
+                        ? FontWeight.w600
+                        : FontWeight.w400,
+                    color: _getLineColor(isCurrentLine, isPastLine),
+                    height: 1.4,
+                    shadows: isCurrentLine
+                        ? [
+                            const Shadow(
+                              blurRadius: 8,
+                              color: Colors.black54,
+                              offset: Offset(0, 1),
+                            ),
+                          ]
+                        : [],
+                  ),
+                  child: AnimatedScale(
+                    duration: const Duration(milliseconds: 200),
+                    scale: isCurrentLine ? 1.0 : 0.95,
+                    child: Text(
+                      line.text,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    child: AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      style: TextStyle(
-                        fontSize: isCurrentLine ? 20 : 16,
-                        fontWeight: isCurrentLine
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: isCurrentLine
-                            ? Colors.white.withValues(
-                                alpha: _fadeAnimation.value,
-                              )
-                            : Colors.white70,
-                      ),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                        transform: Matrix4.identity()
-                          ..scale(isCurrentLine ? 1.05 : 1.0),
-                        child: Text(
-                          line.text,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            shadows: isCurrentLine
-                                ? [
-                                    Shadow(
-                                      offset: const Offset(0, 1),
-                                      blurRadius: 3,
-                                      color: Colors.black.withValues(
-                                        alpha: 0.5,
-                                      ),
-                                    ),
-                                  ]
-                                : null,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
+                  ),
+                ),
               );
             },
           );
         },
       ),
     );
+  }
+
+  Color _getLineColor(bool isCurrentLine, bool isPastLine) {
+    if (isCurrentLine) return Colors.greenAccent.shade100;
+    if (isPastLine) return Colors.white70;
+    return Colors.white38;
   }
 }
