@@ -52,7 +52,7 @@ class PlayerScreen extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      LyricsScreen(song: currentSong),
+                                      LyricsScreen(),
                                 ),
                               );
                             },
