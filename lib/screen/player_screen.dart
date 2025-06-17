@@ -140,12 +140,12 @@ class PlayerScreen extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // Progress Bar Section
-                  ValueListenableBuilder<double?>(
+                  ValueListenableBuilder<Duration?>(
                     valueListenable: MpdRemoteService.instance.elapsed,
                     builder: (context, elapsed, child) {
                       final totalDuration =
                           currentSong?.time?.toDouble() ?? 0.0;
-                      final currentElapsed = elapsed ?? 0.0;
+                      final currentElapsed = elapsed?.inSeconds.toDouble() ?? 0.0;
 
                       return ProgressSliderWidget(
                         totalDuration: totalDuration,

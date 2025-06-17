@@ -69,8 +69,8 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// Current playlist (queue) content
   final ValueNotifier<List<MpdSong>> currentPlaylist = ValueNotifier([]);
   
-  /// Elapsed time of current song in seconds
-  final ValueNotifier<double?> elapsed = ValueNotifier(null);
+  /// Elapsed time of current song as Duration
+  final ValueNotifier<Duration?> elapsed = ValueNotifier(null);
 
   // ==========================================
   // PUBLIC API - INITIALIZATION
@@ -346,16 +346,16 @@ class MpdRemoteService with WidgetsBindingObserver {
 
   /// Seeks to a specific position in the current song
   ///
-  /// [position] - The position to seek to in seconds
-  Future<void> seekToPosition(double position) async {
+  /// [position] - The position to seek to as Duration
+  Future<void> seekToPosition(Duration position) async {
     if (_client == null) {
       throw StateError('MpdRemoteService not initialized');
     }
 
     try {
-      await _client!.seekcur(position.toString());
+      await _client!.seekcur(position.inSeconds.toString());
       elapsed.value = position; // Immediate UI feedback
-      debugPrint('Seeked to position: ${position.toStringAsFixed(1)}s');
+      debugPrint('Seeked to position: ${position.inSeconds}s');
     } catch (e) {
       debugPrint('Failed to seek to position $position: $e');
       _handleConnectionError(e);
@@ -365,16 +365,22 @@ class MpdRemoteService with WidgetsBindingObserver {
 
   /// Seeks by a relative amount from the current position
   ///
-  /// [offset] - The offset in seconds (positive for forward, negative for backward)
-  Future<void> seekRelative(double offset) async {
+  /// [offset] - The offset as Duration (positive for forward, negative for backward)
+  Future<void> seekRelative(Duration offset) async {
     if (_client == null) {
       throw StateError('MpdRemoteService not initialized');
     }
 
     try {
-      final currentElapsed = elapsed.value ?? 0.0;
-      final newPosition = (currentElapsed + offset).clamp(0.0, double.maxFinite);
-      await seekToPosition(newPosition);
+      final currentElapsed = elapsed.value ?? Duration.zero;
+      final newPosition = currentElapsed + offset;
+      
+      // Ensure we don't seek to negative time
+      if (newPosition.isNegative) {
+        await seekToPosition(Duration.zero);
+      } else {
+        await seekToPosition(newPosition);
+      }
     } catch (e) {
       debugPrint('Failed to seek by relative offset $offset: $e');
       _handleConnectionError(e);
@@ -569,7 +575,10 @@ class MpdRemoteService with WidgetsBindingObserver {
       final wasPlaying = isPlaying.value;
       
       isPlaying.value = serverStatus.state == MpdState.play;
-      elapsed.value = serverStatus.elapsed;
+      elapsed.value = serverStatus.elapsed != null 
+          ? Duration(seconds: serverStatus.elapsed!.toInt(), 
+                     milliseconds: ((serverStatus.elapsed! % 1) * 1000).toInt())
+          : null;
       
       // Manage elapsed timer based on playing state
       if (isPlaying.value && !wasPlaying && !_isAppInBackground) {
@@ -587,21 +596,23 @@ class MpdRemoteService with WidgetsBindingObserver {
   // PRIVATE - ELAPSED TIME MANAGEMENT
   // ==========================================
 
-  /// Starts a timer to update elapsed time every second during playback
+  /// Starts a timer to update elapsed time every 10 milliseconds during playback
   void _startElapsedTimer() {
     _stopElapsedTimer(); // Stop any existing timer
     
     if (_isAppInBackground) return; // Don't start timer in background
     
-    _elapsedTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _elapsedTimer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
       if (!isPlaying.value || elapsed.value == null || _isAppInBackground) {
         _stopElapsedTimer();
         return;
       }
 
       final currentElapsed = elapsed.value!;
-      final songDuration = currentSong.value?.time?.toDouble();
-      final newElapsed = currentElapsed + 1.0;
+      final songDuration = currentSong.value?.time != null
+          ? Duration(seconds: currentSong.value!.time!)
+          : null;
+      final newElapsed = currentElapsed + const Duration(milliseconds: 10);
       
       // Check if we've reached the end of the song
       if (songDuration != null && newElapsed >= songDuration) {
