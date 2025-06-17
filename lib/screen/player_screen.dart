@@ -1,3 +1,4 @@
+import 'package:echo_mpd/screen/lyrics_screen.dart';
 import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:echo_mpd/widgets/album_art_widget.dart';
 import 'package:echo_mpd/widgets/music_progress_slider_widget.dart';
@@ -44,9 +45,21 @@ class PlayerScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: AlbumArtWidget(song: currentSong),
+                          child: GestureDetector(
+                            onTap: () {
+                              if (currentSong == null) return;
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      LyricsScreen(song: currentSong),
+                                ),
+                              );
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: AlbumArtWidget(song: currentSong),
+                            ),
                           ),
                         ),
                       ),
