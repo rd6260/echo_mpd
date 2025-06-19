@@ -218,10 +218,13 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       // More options
                       IconButton(
                         onPressed: () {
+                          if (currentSong == null) return;
                           showModalBottomSheet(
                             context: context,
                             builder: (context) =>
-                                const SongMoreBottomPopupSheetWidget(),
+                                SongMoreBottomPopupSheetWidget(
+                                  song: currentSong,
+                                ),
                           );
                         },
                         icon: const Icon(
