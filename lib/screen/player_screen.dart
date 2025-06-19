@@ -27,7 +27,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   /// Provides full toggle functionality: if the song is already present in the
   /// `Favourites` playlist it will be removed, otherwise it will be added.
   Future<void> _onFavouritePressed(MpdSong? song) async {
-    if (song == null || song.file == null) {
+    if (song == null) {
       debugPrint('No current song to toggle favourites');
       return;
     }
@@ -40,7 +40,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
       if (!isFavourite.value) {
         // Add to favourites if not already present.
-        await client.playlistadd(favouritesPlaylistName, song.file!);
+        await client.playlistadd(favouritesPlaylistName, song.file);
         isFavourite.value = true;
         debugPrint('Added "${song.title?.join("") ?? "Unknown"}" to favourites');
       } else {
