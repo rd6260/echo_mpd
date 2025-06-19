@@ -2,10 +2,16 @@ import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:echo_mpd/widgets/lyrics_view.dart';
 import 'package:echo_mpd/widgets/music_progress_slider_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class LyricsScreen extends StatelessWidget {
+class LyricsScreen extends StatefulWidget {
   const LyricsScreen({super.key});
 
+  @override
+  State<LyricsScreen> createState() => _LyricsScreenState();
+}
+
+class _LyricsScreenState extends State<LyricsScreen> {
   void _onPlayPause() {
     MpdRemoteService.instance.client.pause();
   }
@@ -16,6 +22,18 @@ class LyricsScreen extends StatelessWidget {
 
   void _onPreviousTrack() {
     MpdRemoteService.instance.client.previous();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  }
+
+  @override
+  void dispose() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    super.dispose();
   }
 
   @override
