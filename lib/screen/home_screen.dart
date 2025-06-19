@@ -1,7 +1,47 @@
+import 'package:dart_mpd/dart_mpd.dart';
+import 'package:echo_mpd/screen/favourite_tracks_screen.dart';
+import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  ValueNotifier<List<MpdSong>> favouriteSongsList = ValueNotifier([]);
+
+  void _loadFavouriteSongs() async {
+    try {
+      favouriteSongsList.value = await MpdRemoteService.instance.client
+          .listplaylistinfo("Favourites");
+    } catch (e) {
+      // Handle error gracefully
+      debugPrint('Error loading favourite songs: $e');
+      favouriteSongsList.value = [];
+    }
+  }
+
+  void onFavouriteTracksTap() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => FavouriteTracksScreen()),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavouriteSongs();
+  }
+
+  @override
+  void dispose() {
+    favouriteSongsList.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +83,10 @@ class HomeScreen extends StatelessWidget {
                 height: 120,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  children: [SizedBox(height: 100)],
+                  children: const [
+                    SizedBox(height: 100),
+                    // Add your recently played items here
+                  ],
                 ),
               ),
 
@@ -62,34 +105,57 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              // Favorites card
-              Container(
-                width: 160,
-                height: 160,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDC2626),
-                  borderRadius: BorderRadius.circular(12),
+              // Favorites Section - Fixed: Removed Expanded and added shrinkWrap
+              GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true, // Important: allows GridView to size itself
+                physics:
+                    const NeverScrollableScrollPhysics(), // Prevents scroll conflict
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                children: [
+                  _buildFavouriteTracksCard(),
+                  // Add more cards here if needed
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFavouriteTracksCard() {
+    return InkWell(
+      onTap: onFavouriteTracksTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Ink(
+        decoration: BoxDecoration(
+          color: const Color(0xFFDC2626),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(16), // Add padding if needed
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ValueListenableBuilder(
+                valueListenable: favouriteSongsList,
+                builder: (context, value, child) => Text(
+                  value.length.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                child: const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      '2',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'Tracks',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+              ),
+              const Text(
+                'Tracks',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
