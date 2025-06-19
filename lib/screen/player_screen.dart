@@ -3,6 +3,7 @@ import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:echo_mpd/widgets/album_art_widget.dart';
 import 'package:echo_mpd/widgets/music_progress_slider_widget.dart';
 import 'package:dart_mpd/dart_mpd.dart';
+import 'package:echo_mpd/widgets/song_more_bottom_popup_sheet_widget.dart';
 import 'package:flutter/material.dart';
 
 class PlayerScreen extends StatefulWidget {
@@ -214,9 +215,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
                           );
                         },
                       ),
+                      // More options
                       IconButton(
                         onPressed: () {
-                          // Handle more options
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) =>
+                                const SongMoreBottomPopupSheetWidget(),
+                          );
                         },
                         icon: const Icon(
                           Icons.more_vert,
