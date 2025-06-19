@@ -59,7 +59,7 @@ class _SongMoreBottomPopupSheetWidgetState
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-      
+
             // Song info section
             Container(
               padding: const EdgeInsets.all(20),
@@ -78,6 +78,8 @@ class _SongMoreBottomPopupSheetWidgetState
                       children: [
                         // Album Art picture
                         Container(
+                          height: double.infinity,
+                          width: double.infinity,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(4),
                             color: const Color(0xFF3A3A3A),
@@ -189,7 +191,7 @@ class _SongMoreBottomPopupSheetWidgetState
                 ],
               ),
             ),
-      
+
             // File info section
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -198,7 +200,7 @@ class _SongMoreBottomPopupSheetWidgetState
                   // Divider
                   Container(height: 1, color: const Color(0xFF262626)),
                   const SizedBox(height: 16),
-      
+
                   // File details
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,7 +298,7 @@ class _SongMoreBottomPopupSheetWidgetState
                     ],
                   ),
                   const SizedBox(height: 16),
-      
+
                   // File path
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,7 +323,7 @@ class _SongMoreBottomPopupSheetWidgetState
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-      
+
                       // Divider
                       const SizedBox(height: 16),
                       Container(height: 1, color: const Color(0xFF262626)),
@@ -330,9 +332,9 @@ class _SongMoreBottomPopupSheetWidgetState
                 ],
               ),
             ),
-      
+
             const SizedBox(height: 16),
-      
+
             // Action buttons with exact styling from image
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -362,7 +364,7 @@ class _SongMoreBottomPopupSheetWidgetState
                   // Divider
                   Container(height: 1, color: const Color(0xFF262626)),
                   const SizedBox(height: 16),
-      
+
                   // Second row - Artist and Album
                   Row(
                     children: [
@@ -383,7 +385,7 @@ class _SongMoreBottomPopupSheetWidgetState
                       ),
                     ],
                   ),
-      
+
                   // Bottom padding for safe area
                   SizedBox(height: MediaQuery.of(context).padding.bottom + 24),
                 ],
