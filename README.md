@@ -51,4 +51,4 @@ Contributions, ideas, and feedback are always welcome!
 - [Music Player Daemon](https://www.musicpd.org/)
 - Inspiration from MPDroid, MALP, and other FOSS projects
 - **Last.fm** for high quality album arts
-
+- **musixmatch** for synced lyrics
