@@ -32,13 +32,15 @@ class AlbumArtWidget extends StatelessWidget {
       final String? filePath = await getAlbumArtPath(albumArtist, album);
 
       // If file path is available, show the image
-      return Image.file(
-        File(filePath!),
-        fit: BoxFit.contain,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholder();
-        },
-      );
+      if (filePath != null) {
+        return Image.file(
+          File(filePath),
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) {
+            return _buildPlaceholder();
+          },
+        );
+      }
     }
     return _buildPlaceholder();
   }

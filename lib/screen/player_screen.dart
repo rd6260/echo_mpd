@@ -35,24 +35,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
       final client = MpdRemoteService.instance.client;
       const favouritesPlaylistName = 'Favourites';
 
-      // Helper to show a SnackBar
-      void _showSnack(String message, Color bg) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(message),
-              backgroundColor: bg,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      }
+
 
       if (!isFavourite.value) {
         // Add to favourites if not already present.
         await client.playlistadd(favouritesPlaylistName, song.file!);
         isFavourite.value = true;
-        _showSnack('Added "${song.title?.join("") ?? "Unknown"}" to favourites', const Color(0xFF314B17));
         debugPrint('Added "${song.title?.join("") ?? "Unknown"}" to favourites');
       } else {
         // Fetch current favourites playlist to locate the index of the song.
@@ -68,7 +56,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
         // Remove the song at [index] from the playlist.
         await client.playlistdelete(favouritesPlaylistName, MpdRange(index, index));
         isFavourite.value = false;
-        _showSnack('Removed "${song.title?.join("") ?? "Unknown"}" from favourites', Colors.red.shade700);
         debugPrint('Removed "${song.title?.join("") ?? "Unknown"}" from favourites');
       }
     } catch (e) {
