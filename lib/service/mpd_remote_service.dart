@@ -29,7 +29,7 @@ class MpdRemoteService with WidgetsBindingObserver {
   // ==========================================
   // SINGLETON PATTERN
   // ==========================================
-  
+
   MpdRemoteService._();
   static final MpdRemoteService _instance = MpdRemoteService._();
   static MpdRemoteService get instance => _instance;
@@ -37,13 +37,13 @@ class MpdRemoteService with WidgetsBindingObserver {
   // ==========================================
   // PRIVATE FIELDS
   // ==========================================
-  
+
   // MPD Connection
   MpdClient? _client;
   MpdClient? _statusClient;
   String? _host;
   int? _port;
-  
+
   // State Management
   bool _isInitialized = false;
   bool _isPolling = false;
@@ -56,21 +56,21 @@ class MpdRemoteService with WidgetsBindingObserver {
   // ==========================================
   // PUBLIC NOTIFIERS
   // ==========================================
-  
+
   /// Current song being played (null when no song is playing or disconnected)
   final ValueNotifier<MpdSong?> currentSong = ValueNotifier(null);
-  
+
   /// Connection status to MPD server
   final ValueNotifier<bool> isConnected = ValueNotifier(false);
-  
+
   /// Player state (playing/paused)
   final ValueNotifier<bool> isPlaying = ValueNotifier(false);
-  
+
   /// Current playlist (queue) content
   final ValueNotifier<List<MpdSong>> currentPlaylist = ValueNotifier([]);
-  
-  /// Elapsed time of current song in seconds
-  final ValueNotifier<double?> elapsed = ValueNotifier(null);
+
+  /// Elapsed time of current song as Duration
+  final ValueNotifier<Duration?> elapsed = ValueNotifier(null);
 
   // ==========================================
   // PUBLIC API - INITIALIZATION
@@ -98,7 +98,7 @@ class MpdRemoteService with WidgetsBindingObserver {
       await _createClients(host, port);
       await _initializeState();
       _isInitialized = true;
-      
+
       if (!_isAppInBackground) {
         _startStatusPolling();
       }
@@ -123,15 +123,15 @@ class MpdRemoteService with WidgetsBindingObserver {
 
     debugPrint('Reconnecting MPD service...');
     _pauseOperations();
-    
+
     try {
       await _createClients(_host!, _port!);
       await _initializeState();
-      
+
       if (!_isAppInBackground) {
         _resumeOperations();
       }
-      
+
       debugPrint('MPD service reconnected successfully');
     } catch (e) {
       debugPrint('MPD service reconnection failed: $e');
@@ -147,7 +147,7 @@ class MpdRemoteService with WidgetsBindingObserver {
   void dispose() {
     // Remove lifecycle observers
     _cleanupLifecycleObservers();
-    
+
     _isInitialized = false;
     _cleanup();
 
@@ -194,7 +194,7 @@ class MpdRemoteService with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     debugPrint('App lifecycle state changed: $state');
-    
+
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
@@ -202,12 +202,12 @@ class MpdRemoteService with WidgetsBindingObserver {
         debugPrint('App going to background - pausing MPD operations');
         _handleAppBackground();
         break;
-        
+
       case AppLifecycleState.resumed:
         debugPrint('App resumed - resuming MPD operations');
         _handleAppForeground();
         break;
-        
+
       case AppLifecycleState.inactive:
         // Don't pause on inactive as it's triggered during transitions
         debugPrint('App inactive - not changing MPD operations');
@@ -218,7 +218,7 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// Handles app going to background
   void _handleAppBackground() {
     if (_isAppInBackground) return; // Already in background
-    
+
     debugPrint('Handling app background');
     _isAppInBackground = true;
     _pauseOperations();
@@ -227,10 +227,10 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// Handles app coming to foreground
   void _handleAppForeground() {
     if (!_isAppInBackground) return; // Already in foreground
-    
+
     debugPrint('Handling app foreground');
     _isAppInBackground = false;
-    
+
     if (_isInitialized) {
       if (_needsReconnectionOnResume) {
         debugPrint('Attempting deferred reconnection on app resume');
@@ -257,7 +257,7 @@ class MpdRemoteService with WidgetsBindingObserver {
     _stopElapsedTimer();
     _reconnectionTimer?.cancel();
     _reconnectionTimer = null;
-    
+
     // Close connections gracefully but don't set clients to null
     // so we can try to reuse them when resuming
     try {
@@ -271,7 +271,7 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// Resumes background operations
   void _resumeOperations() {
     debugPrint('Resuming MPD operations');
-    
+
     if (_isInitialized && !_isAppInBackground) {
       // Test connection before resuming polling
       _testConnectionAndResume();
@@ -288,26 +288,29 @@ class MpdRemoteService with WidgetsBindingObserver {
     }
 
     // Try a simple command to test connection
-    _client!.ping().then((_) {
-      debugPrint('Connection test successful, resuming operations');
-      isConnected.value = true;
-      _startStatusPolling();
-      
-      // Refresh state after resume
-      Future.microtask(() async {
-        try {
-          await refreshPlayerStatus();
-          await refreshCurrentSong();
-        } catch (e) {
-          debugPrint('Failed to refresh state on resume: $e');
-        }
-      });
-    }).catchError((e) {
-      debugPrint('Connection test failed: $e, scheduling reconnection');
-      isConnected.value = false;
-      _needsReconnectionOnResume = true;
-      _scheduleReconnection();
-    });
+    _client!
+        .ping()
+        .then((_) {
+          debugPrint('Connection test successful, resuming operations');
+          isConnected.value = true;
+          _startStatusPolling();
+
+          // Refresh state after resume
+          Future.microtask(() async {
+            try {
+              await refreshPlayerStatus();
+              await refreshCurrentSong();
+            } catch (e) {
+              debugPrint('Failed to refresh state on resume: $e');
+            }
+          });
+        })
+        .catchError((e) {
+          debugPrint('Connection test failed: $e, scheduling reconnection');
+          isConnected.value = false;
+          _needsReconnectionOnResume = true;
+          _scheduleReconnection();
+        });
   }
 
   // ==========================================
@@ -319,7 +322,9 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// Throws [StateError] if the service is not initialized
   MpdClient get client {
     if (!_isInitialized || _client == null) {
-      throw StateError('MpdRemoteService not initialized. Call initialize() first.');
+      throw StateError(
+        'MpdRemoteService not initialized. Call initialize() first.',
+      );
     }
     return _client!;
   }
@@ -346,16 +351,16 @@ class MpdRemoteService with WidgetsBindingObserver {
 
   /// Seeks to a specific position in the current song
   ///
-  /// [position] - The position to seek to in seconds
-  Future<void> seekToPosition(double position) async {
+  /// [position] - The position to seek to as Duration
+  Future<void> seekToPosition(Duration position) async {
     if (_client == null) {
       throw StateError('MpdRemoteService not initialized');
     }
 
     try {
-      await _client!.seekcur(position.toString());
+      await _client!.seekcur(position.inSeconds.toString());
       elapsed.value = position; // Immediate UI feedback
-      debugPrint('Seeked to position: ${position.toStringAsFixed(1)}s');
+      debugPrint('Seeked to position: ${position.inSeconds}s');
     } catch (e) {
       debugPrint('Failed to seek to position $position: $e');
       _handleConnectionError(e);
@@ -365,16 +370,22 @@ class MpdRemoteService with WidgetsBindingObserver {
 
   /// Seeks by a relative amount from the current position
   ///
-  /// [offset] - The offset in seconds (positive for forward, negative for backward)
-  Future<void> seekRelative(double offset) async {
+  /// [offset] - The offset as Duration (positive for forward, negative for backward)
+  Future<void> seekRelative(Duration offset) async {
     if (_client == null) {
       throw StateError('MpdRemoteService not initialized');
     }
 
     try {
-      final currentElapsed = elapsed.value ?? 0.0;
-      final newPosition = (currentElapsed + offset).clamp(0.0, double.maxFinite);
-      await seekToPosition(newPosition);
+      final currentElapsed = elapsed.value ?? Duration.zero;
+      final newPosition = currentElapsed + offset;
+
+      // Ensure we don't seek to negative time
+      if (newPosition.isNegative) {
+        await seekToPosition(Duration.zero);
+      } else {
+        await seekToPosition(newPosition);
+      }
     } catch (e) {
       debugPrint('Failed to seek by relative offset $offset: $e');
       _handleConnectionError(e);
@@ -414,7 +425,7 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// Creates the MPD client instances for main operations and status polling
   Future<void> _createClients(String host, int port) async {
     final connectionDetails = MpdConnectionDetails(host: host, port: port);
-    
+
     // Close existing clients if they exist
     try {
       _client?.connection.close();
@@ -422,7 +433,7 @@ class MpdRemoteService with WidgetsBindingObserver {
     } catch (e) {
       debugPrint('Error closing existing clients: $e');
     }
-    
+
     _client = MpdClient(connectionDetails: connectionDetails);
     _statusClient = MpdClient(connectionDetails: connectionDetails);
   }
@@ -450,10 +461,12 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// Starts the background status polling using MPD's idle command
   void _startStatusPolling() {
     if (_isPolling || _isAppInBackground) {
-      debugPrint('Not starting polling: isPolling=$_isPolling, isBackground=$_isAppInBackground');
+      debugPrint(
+        'Not starting polling: isPolling=$_isPolling, isBackground=$_isAppInBackground',
+      );
       return;
     }
-    
+
     debugPrint('Starting status polling');
     _isPolling = true;
     Future.microtask(_statusPollingLoop);
@@ -462,17 +475,22 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// Main polling loop that listens for MPD subsystem changes
   Future<void> _statusPollingLoop() async {
     debugPrint('Status polling loop started');
-    
-    while (_isInitialized && _statusClient != null && _isPolling && !_isAppInBackground) {
+
+    while (_isInitialized &&
+        _statusClient != null &&
+        _isPolling &&
+        !_isAppInBackground) {
       try {
         debugPrint('Waiting for MPD idle...');
         final changes = await _statusClient!.idle();
-        
+
         if (!_isInitialized || !_isPolling || _isAppInBackground) {
-          debugPrint('Breaking polling loop: initialized=$_isInitialized, polling=$_isPolling, background=$_isAppInBackground');
+          debugPrint(
+            'Breaking polling loop: initialized=$_isInitialized, polling=$_isPolling, background=$_isAppInBackground',
+          );
           break;
         }
-        
+
         isConnected.value = true;
         await _handleSubsystemChanges(changes);
       } catch (e) {
@@ -482,7 +500,7 @@ class MpdRemoteService with WidgetsBindingObserver {
         break; // Exit the loop, reconnection will be handled separately
       }
     }
-    
+
     debugPrint('Status polling loop ended');
   }
 
@@ -567,10 +585,15 @@ class MpdRemoteService with WidgetsBindingObserver {
     try {
       final serverStatus = await _client!.status();
       final wasPlaying = isPlaying.value;
-      
+
       isPlaying.value = serverStatus.state == MpdState.play;
-      elapsed.value = serverStatus.elapsed;
-      
+      elapsed.value = serverStatus.elapsed != null
+          ? Duration(
+              seconds: serverStatus.elapsed!.toInt(),
+              milliseconds: ((serverStatus.elapsed! % 1) * 1000).toInt(),
+            )
+          : null;
+
       // Manage elapsed timer based on playing state
       if (isPlaying.value && !wasPlaying && !_isAppInBackground) {
         _startElapsedTimer();
@@ -587,22 +610,31 @@ class MpdRemoteService with WidgetsBindingObserver {
   // PRIVATE - ELAPSED TIME MANAGEMENT
   // ==========================================
 
-  /// Starts a timer to update elapsed time every second during playback
+  /// Starts a timer to update elapsed time every 10 milliseconds during playback
   void _startElapsedTimer() {
     _stopElapsedTimer(); // Stop any existing timer
-    
     if (_isAppInBackground) return; // Don't start timer in background
-    
-    _elapsedTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    int timestampMs1 =
+        DateTime.now().millisecondsSinceEpoch; // for tracking time difference
+
+    _elapsedTimer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
       if (!isPlaying.value || elapsed.value == null || _isAppInBackground) {
         _stopElapsedTimer();
         return;
       }
 
       final currentElapsed = elapsed.value!;
-      final songDuration = currentSong.value?.time?.toDouble();
-      final newElapsed = currentElapsed + 1.0;
-      
+      final songDuration = currentSong.value?.time != null
+          ? Duration(seconds: currentSong.value!.time!)
+          : null;
+
+      // compansiting the time difference
+      final timestampMs2 = DateTime.now().millisecondsSinceEpoch;
+      final timeDifference = timestampMs2 - timestampMs1;
+      timestampMs1 = timestampMs2;
+      final newElapsed =
+          currentElapsed + Duration(milliseconds: timeDifference);
+
       // Check if we've reached the end of the song
       if (songDuration != null && newElapsed >= songDuration) {
         elapsed.value = songDuration;
@@ -626,13 +658,13 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// Handles connection errors and triggers reconnection if needed
   void _handleConnectionError(dynamic error) {
     debugPrint('Handling connection error: $error');
-    
+
     if (_isAppInBackground) {
       debugPrint('App in background, deferring reconnection');
       _needsReconnectionOnResume = true;
       return;
     }
-    
+
     isConnected.value = false;
     _scheduleReconnection();
   }
@@ -640,10 +672,12 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// Schedules a reconnection attempt
   void _scheduleReconnection() {
     if (_isAppInBackground || _reconnectionTimer != null) {
-      debugPrint('Not scheduling reconnection: background=$_isAppInBackground, timer exists=${_reconnectionTimer != null}');
+      debugPrint(
+        'Not scheduling reconnection: background=$_isAppInBackground, timer exists=${_reconnectionTimer != null}',
+      );
       return;
     }
-    
+
     debugPrint('Scheduling reconnection in 5 seconds');
     _reconnectionTimer = Timer(const Duration(seconds: 5), () {
       _reconnectionTimer = null;
@@ -656,7 +690,9 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// Attempts to reconnect to the MPD server after a connection failure
   Future<void> _attemptReconnection() async {
     if (_host == null || _port == null || _isAppInBackground) {
-      debugPrint('Cannot attempt reconnection: host=$_host, port=$_port, background=$_isAppInBackground');
+      debugPrint(
+        'Cannot attempt reconnection: host=$_host, port=$_port, background=$_isAppInBackground',
+      );
       return;
     }
 
@@ -677,14 +713,14 @@ class MpdRemoteService with WidgetsBindingObserver {
     _stopElapsedTimer();
     _reconnectionTimer?.cancel();
     _reconnectionTimer = null;
-    
+
     try {
       _statusClient?.connection.close();
       _client?.connection.close();
     } catch (e) {
       debugPrint('Error during cleanup: $e');
     }
-    
+
     _client = null;
     _statusClient = null;
   }

@@ -1,3 +1,4 @@
+import 'package:echo_mpd/screen/lyrics_screen.dart';
 import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:echo_mpd/widgets/album_art_widget.dart';
 import 'package:echo_mpd/widgets/music_progress_slider_widget.dart';
@@ -110,9 +111,21 @@ class _PlayerScreenState extends State<PlayerScreen> {
                               ),
                             ],
                           ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: AlbumArtWidget(song: currentSong),
+                          child: GestureDetector(
+                            onTap: () {
+                              if (currentSong == null) return;
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      LyricsScreen(),
+                                ),
+                              );
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: AlbumArtWidget(song: currentSong),
+                            ),
                           ),
                         ),
                       ),
@@ -196,12 +209,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   const SizedBox(height: 20),
 
                   // Progress Bar Section
-                  ValueListenableBuilder<double?>(
+                  ValueListenableBuilder<Duration?>(
                     valueListenable: MpdRemoteService.instance.elapsed,
                     builder: (context, elapsed, child) {
                       final totalDuration =
                           currentSong?.time?.toDouble() ?? 0.0;
-                      final currentElapsed = elapsed ?? 0.0;
+                      final currentElapsed = elapsed?.inSeconds.toDouble() ?? 0.0;
 
                       return ProgressSliderWidget(
                         totalDuration: totalDuration,

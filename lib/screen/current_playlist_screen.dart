@@ -95,9 +95,6 @@ class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
                 final song = queue[index];
                 return PlaylistTile(
                   song: song,
-                  isPlaying:
-                      MpdRemoteService.instance.currentSong.value?.file ==
-                      song.file,
                   onTap: () => onSongTap(index),
                   onMorePressed: () {
                     // Handle more options

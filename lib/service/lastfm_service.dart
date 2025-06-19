@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:echo_mpd/credential.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,7 +18,13 @@ class ImageInfo {
 
 class LastfmService {
   static const String _baseUrl = 'http://ws.audioscrobbler.com/2.0/';
-  static const String apiKey = lastfmApiKey;
+
+  // Secondary Api key for development purposes
+  static const String apiKey = String.fromEnvironment(
+    "lastfm_api_key",
+    defaultValue: "6fd88ef256bfc274dfa0797dded2bcdb",
+  );
+
 
   LastfmService();
 

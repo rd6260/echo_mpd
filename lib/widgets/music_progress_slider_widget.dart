@@ -37,7 +37,7 @@ class _ProgressSliderWidgetState extends State<ProgressSliderWidget> {
     setState(() {
       isUserDragging = false;
     });
-    await MpdRemoteService.instance.seekToPosition(value);
+    await MpdRemoteService.instance.seekToPosition(Duration(milliseconds: (value * 1000).round()));
   }
 
   String _formatTime(double seconds) {
