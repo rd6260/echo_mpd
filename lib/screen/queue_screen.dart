@@ -3,14 +3,14 @@ import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:echo_mpd/widgets/playlist_tile.dart';
 import 'package:flutter/material.dart';
 
-class CurrentPlaylistScreen extends StatefulWidget {
-  const CurrentPlaylistScreen({super.key});
+class QueueScreen extends StatefulWidget {
+  const QueueScreen({super.key});
 
   @override
-  State<CurrentPlaylistScreen> createState() => _CurrentPlaylistScreenState();
+  State<QueueScreen> createState() => _QueueScreenState();
 }
 
-class _CurrentPlaylistScreenState extends State<CurrentPlaylistScreen> {
+class _QueueScreenState extends State<QueueScreen> {
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<double> _scrollOffset = ValueNotifier(0.0);
   final double _stickyOffset = 60.0; // Height at which the bar becomes sticky

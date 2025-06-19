@@ -1,7 +1,8 @@
 import 'package:echo_mpd/screen/albums_screen.dart';
 import 'package:echo_mpd/screen/artists_screen.dart';
-import 'package:echo_mpd/screen/current_playlist_screen.dart';
 import 'package:echo_mpd/screen/home_screen.dart';
+import 'package:echo_mpd/screen/playlists_screen.dart';
+import 'package:echo_mpd/screen/queue_screen.dart';
 import 'package:echo_mpd/screen/tracks_screen.dart';
 import 'package:echo_mpd/widgets/bottom_island_widget.dart';
 import 'package:flutter/material.dart';
@@ -23,17 +24,19 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   final List<String> _tabs = [
     'HOME',
-    'PLAYLISTS',
+    'QUEUE',
     'TRACKS',
+    'PLAYLISTS',
     'ALBUMS',
     'ARTISTS',
   ];
 
-  // Add your screens here corresponding to each tab
+  // screens corresponding to each tab
   final List<Widget> _screens = [
     HomeScreen(),
-    CurrentPlaylistScreen(),
+    QueueScreen(),
     TracksScreen(),
+    PlaylistsScreen(),
     AlbumsScreen(),
     ArtistsScreen(),
   ];
