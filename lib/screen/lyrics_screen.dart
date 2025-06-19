@@ -6,16 +6,30 @@ import 'package:flutter/material.dart';
 class LyricsScreen extends StatelessWidget {
   const LyricsScreen({super.key});
 
+  void _onPlayPause() {
+    MpdRemoteService.instance.client.pause();
+  }
+
+  void _onNextTrack() {
+    MpdRemoteService.instance.client.next();
+  }
+
+  void _onPreviousTrack() {
+    MpdRemoteService.instance.client.previous();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         foregroundColor: Colors.white,
       ),
       backgroundColor: Colors.black,
       body: Column(
         children: [
+          // lyrics view
           Expanded(
             child: ValueListenableBuilder(
               valueListenable: MpdRemoteService.instance.currentSong,
@@ -24,6 +38,8 @@ class LyricsScreen extends StatelessWidget {
               },
             ),
           ),
+
+          // Music progress slider
           ValueListenableBuilder<Duration?>(
             valueListenable: MpdRemoteService.instance.elapsed,
             builder: (context, elapsed, child) {
@@ -39,7 +55,51 @@ class LyricsScreen extends StatelessWidget {
               );
             },
           ),
-          SizedBox(height: 100),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 20,
+            children: [
+              // Previous Button
+              IconButton(
+                onPressed: _onPreviousTrack,
+                icon: const Icon(
+                  Icons.skip_previous,
+                  color: Colors.white,
+                  size: 36,
+                ),
+              ),
+              // Play/Pause Button
+              ValueListenableBuilder(
+                valueListenable: MpdRemoteService.instance.isPlaying,
+                builder: (context, isPlaying, child) => Container(
+                  width: 80,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF314B17),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: IconButton(
+                    onPressed: _onPlayPause,
+                    icon: Icon(
+                      isPlaying ? Icons.pause : Icons.play_arrow,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                  ),
+                ),
+              ),
+              // Next Button
+              IconButton(
+                onPressed: _onNextTrack,
+                icon: const Icon(
+                  Icons.skip_next,
+                  color: Colors.white,
+                  size: 36,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 50),
         ],
       ),
     );
