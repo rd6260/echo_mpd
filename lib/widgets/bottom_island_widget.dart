@@ -215,22 +215,24 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                                       children: [
                                         Text(
                                           songTitle ?? "N/A",
+                                          overflow: TextOverflow.fade,
+                                          softWrap: false,
+                                          maxLines: 1,
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
                                           ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
                                         ),
                                         Text(
                                           albumArtistName ?? "N/A",
+                                          overflow: TextOverflow.fade,
+                                          softWrap: false,
+                                          maxLines: 1,
                                           style: const TextStyle(
                                             color: Colors.grey,
                                             fontSize: 12,
                                           ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ],
                                     ),
