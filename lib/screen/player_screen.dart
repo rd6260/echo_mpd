@@ -13,15 +13,31 @@ class PlayerScreen extends StatefulWidget {
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
+  static const favouritesPlaylistName = 'Favourites';
+
   /// Tracks if current song is marked as favourite
   final ValueNotifier<bool> isFavourite = ValueNotifier(false);
-  
-  @override
-  void dispose() {
-    isFavourite.dispose();
-    super.dispose();
+
+  /// update the [isFavourite] ValueNotifier
+  void updateIsFavouriteValue(MpdSong? song) async {
+    isFavourite.value = await _getIndexInFevourite(song) == null ? false : true;
   }
-  
+
+  /// Fetch the index of the song in the favourite playlist
+  /// if the song is not present in the favourite playlist
+  Future<int?> _getIndexInFevourite(MpdSong? song) async {
+    song ??= MpdRemoteService.instance.currentSong.value;
+    MpdClient client = MpdRemoteService.instance.client;
+
+    List<MpdSong> favSongs = await client.listplaylistinfo(
+      favouritesPlaylistName,
+    );
+    int index = favSongs.indexWhere((favSong) => favSong.file == song?.file);
+
+    // if index is -1 then return null
+    return index >= 0 ? index : null;
+  }
+
   /// Handles favourite button press for a given [song].
   ///
   /// Provides full toggle functionality: if the song is already present in the
@@ -34,30 +50,29 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
     try {
       final client = MpdRemoteService.instance.client;
-      const favouritesPlaylistName = 'Favourites';
-
-
 
       if (!isFavourite.value) {
         // Add to favourites if not already present.
         await client.playlistadd(favouritesPlaylistName, song.file);
         isFavourite.value = true;
-        debugPrint('Added "${song.title?.join("") ?? "Unknown"}" to favourites');
+        debugPrint(
+          'Added "${song.title?.join("") ?? "Unknown"}" to favourites',
+        );
       } else {
-        // Fetch current favourites playlist to locate the index of the song.
-        final List<MpdSong> favSongs = await client.listplaylistinfo(favouritesPlaylistName);
-        final int index = favSongs.indexWhere((s) => s.file == song.file);
+        final int? index = await _getIndexInFevourite(song);
 
-        if (index == -1) {
-          debugPrint('Song not found in favourites playlist – updating local state');
+        if (index == null) {
+          debugPrint('Song not found in favourites playlist');
           isFavourite.value = false;
           return;
         }
 
         // Remove the song at [index] from the playlist.
-        await client.playlistdelete(favouritesPlaylistName, MpdRange(index, index));
+        await client.playlistdelete(favouritesPlaylistName, MpdPosition(index));
         isFavourite.value = false;
-        debugPrint('Removed "${song.title?.join("") ?? "Unknown"}" from favourites');
+        debugPrint(
+          'Removed "${song.title?.join("") ?? "Unknown"}" from favourites',
+        );
       }
     } catch (e) {
       debugPrint('Failed to update favourites: $e');
@@ -74,6 +89,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
   }
 
   @override
+  void dispose() {
+    isFavourite.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
@@ -87,6 +108,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
           child: ValueListenableBuilder(
             valueListenable: MpdRemoteService.instance.currentSong,
             builder: (context, currentSong, child) {
+              updateIsFavouriteValue(currentSong);
               return Column(
                 children: [
                   // Top spacing
@@ -117,8 +139,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      LyricsScreen(),
+                                  builder: (context) => LyricsScreen(),
                                 ),
                               );
                             },
@@ -214,7 +235,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     builder: (context, elapsed, child) {
                       final totalDuration =
                           currentSong?.time?.toDouble() ?? 0.0;
-                      final currentElapsed = elapsed?.inSeconds.toDouble() ?? 0.0;
+                      final currentElapsed =
+                          elapsed?.inSeconds.toDouble() ?? 0.0;
 
                       return ProgressSliderWidget(
                         totalDuration: totalDuration,
