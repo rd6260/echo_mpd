@@ -211,7 +211,7 @@ class _SongMoreBottomPopupSheetWidgetState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'BITRATE',
+                              'GENRE',
                               style: TextStyle(
                                 color: Color(0xFF666666),
                                 fontSize: 10,
@@ -220,8 +220,8 @@ class _SongMoreBottomPopupSheetWidgetState
                               ),
                             ),
                             const SizedBox(height: 4),
-                            const Text(
-                              'N/A',
+                            Text(
+                              widget.song.genre?.join(", ") ?? "N/A",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -230,7 +230,7 @@ class _SongMoreBottomPopupSheetWidgetState
                             ),
                             const SizedBox(height: 12),
                             const Text(
-                              'SIZE',
+                              'TRACK',
                               style: TextStyle(
                                 color: Color(0xFF666666),
                                 fontSize: 10,
@@ -239,8 +239,8 @@ class _SongMoreBottomPopupSheetWidgetState
                               ),
                             ),
                             const SizedBox(height: 4),
-                            const Text(
-                              'N/A',
+                            Text(
+                              widget.song.track?.join(" | ") ?? 'N/A',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -256,7 +256,7 @@ class _SongMoreBottomPopupSheetWidgetState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'SAMPLE RATE',
+                              'DATE',
                               style: TextStyle(
                                 color: Color(0xFF666666),
                                 fontSize: 10,
@@ -265,8 +265,8 @@ class _SongMoreBottomPopupSheetWidgetState
                               ),
                             ),
                             const SizedBox(height: 4),
-                            const Text(
-                              'N/A',
+                            Text(
+                              widget.song.date?.join(" | ") ?? "N/a",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
