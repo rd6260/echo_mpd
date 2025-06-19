@@ -2,10 +2,76 @@ import 'package:echo_mpd/screen/lyrics_screen.dart';
 import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:echo_mpd/widgets/album_art_widget.dart';
 import 'package:echo_mpd/widgets/music_progress_slider_widget.dart';
+import 'package:dart_mpd/dart_mpd.dart';
 import 'package:flutter/material.dart';
 
-class PlayerScreen extends StatelessWidget {
+class PlayerScreen extends StatefulWidget {
   const PlayerScreen({super.key});
+
+  @override
+  State<PlayerScreen> createState() => _PlayerScreenState();
+}
+
+class _PlayerScreenState extends State<PlayerScreen> {
+  /// Tracks if current song is marked as favourite
+  final ValueNotifier<bool> isFavourite = ValueNotifier(false);
+  
+  @override
+  void dispose() {
+    isFavourite.dispose();
+    super.dispose();
+  }
+  
+  /// Handles favourite button press for a given [song].
+  ///
+  /// Provides full toggle functionality: if the song is already present in the
+  /// `Favourites` playlist it will be removed, otherwise it will be added.
+  Future<void> _onFavouritePressed(MpdSong? song) async {
+    if (song == null || song.file == null) {
+      debugPrint('No current song to toggle favourites');
+      return;
+    }
+
+    try {
+      final client = MpdRemoteService.instance.client;
+      const favouritesPlaylistName = 'Favourites';
+
+
+
+      if (!isFavourite.value) {
+        // Add to favourites if not already present.
+        await client.playlistadd(favouritesPlaylistName, song.file!);
+        isFavourite.value = true;
+        debugPrint('Added "${song.title?.join("") ?? "Unknown"}" to favourites');
+      } else {
+        // Fetch current favourites playlist to locate the index of the song.
+        final List<MpdSong> favSongs = await client.listplaylistinfo(favouritesPlaylistName);
+        final int index = favSongs.indexWhere((s) => s.file == song.file);
+
+        if (index == -1) {
+          debugPrint('Song not found in favourites playlist – updating local state');
+          isFavourite.value = false;
+          return;
+        }
+
+        // Remove the song at [index] from the playlist.
+        await client.playlistdelete(favouritesPlaylistName, MpdRange(index, index));
+        isFavourite.value = false;
+        debugPrint('Removed "${song.title?.join("") ?? "Unknown"}" from favourites');
+      }
+    } catch (e) {
+      debugPrint('Failed to update favourites: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update favourites: $e'),
+            backgroundColor: Colors.red.shade700,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,15 +180,18 @@ class PlayerScreen extends StatelessWidget {
                       ),
                       SizedBox(width: 10),
                       // `Favourite` and `More` Button
-                      IconButton(
-                        onPressed: () {
-                          // Handle favorite
+                      ValueListenableBuilder<bool>(
+                        valueListenable: isFavourite,
+                        builder: (context, isFav, child) {
+                          return IconButton(
+                            onPressed: () => _onFavouritePressed(currentSong),
+                            icon: Icon(
+                              isFav ? Icons.favorite : Icons.favorite_border,
+                              color: isFav ? Colors.red : Colors.white,
+                              size: 28,
+                            ),
+                          );
                         },
-                        icon: const Icon(
-                          Icons.favorite,
-                          color: Colors.white,
-                          size: 28,
-                        ),
                       ),
                       IconButton(
                         onPressed: () {
