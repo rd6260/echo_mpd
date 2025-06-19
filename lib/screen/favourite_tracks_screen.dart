@@ -8,6 +8,7 @@ class FavouriteTracksScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
+        foregroundColor: Colors.white,
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
       ),
