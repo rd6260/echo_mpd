@@ -49,6 +49,6 @@ Contributions, ideas, and feedback are always welcome!
 ## 🙏 Acknowledgments
 
 - [Music Player Daemon](https://www.musicpd.org/)
-- Inspiration from MPDroid, MALP, and other FOSS projects
+- Inspiration from MALP, [MissingCore Music app](https://github.com/MissingCore/Music), ncmpcpp and other FOSS projects
 - **Last.fm** for high quality album arts
 - **musixmatch** for synced lyrics
