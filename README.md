@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/logo/logo_foreground.png" alt="description" width="300"/>
+</div>
+
 # 🎵 Echo MPD - A Modern MPD Mobile Client
 
 A clean, modern, and feature-rich mobile remote for [MPD (Music Player Daemon)](https://www.musicpd.org/), built with a focus on simplicity, design, and usability. Think **MPDroid** or **MALP**, but reimagined for 2025.
@@ -14,7 +18,7 @@ A clean, modern, and feature-rich mobile remote for [MPD (Music Player Daemon)](
 
 
 
-## ✨ Features
+## ✨ Features`
 
 - Modern UI with smooth transitions
 - Intuitive browsing by artist, album, genre, and playlist
