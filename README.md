@@ -1,5 +1,5 @@
-<div align="center">
-  <img src="assets/logo/logo_foreground.png" alt="description" width="300"/>
+<div align="center" style="padding: 40px 0;">
+  <img src="src/echo_mpd_logo_inverted.svg" alt="description" width="140"/>
 </div>
 
 # 🎵 Echo MPD - A Modern MPD Mobile Client
