@@ -95,7 +95,8 @@ class _MpdConnectionGateScreenState extends State<MpdConnectionGateScreen>
 
     try {
       await MpdRemoteService.instance.initialize(host: ip, port: port);
-      await Future.delayed(const Duration(seconds: 2));
+      // duration to show the connecting animation, i dunno if i should keep it or not
+      // await Future.delayed(const Duration(milliseconds: 500));
 
       if (mounted) {
         Navigator.pushReplacement(
