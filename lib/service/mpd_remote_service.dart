@@ -52,6 +52,7 @@ class MpdRemoteService with WidgetsBindingObserver {
   Timer? _elapsedTimer;
   Timer? _reconnectionTimer;
   AppLifecycleListener? _lifecycleListener;
+  Completer<void>? _pollingCancellationCompleter;
 
   // ==========================================
   // PUBLIC NOTIFIERS
@@ -172,7 +173,6 @@ class MpdRemoteService with WidgetsBindingObserver {
         onShow: () => _handleAppForeground(),
         onHide: () => _handleAppBackground(),
         onResume: () => _handleAppForeground(),
-        onInactive: () => _handleAppBackground(),
         onPause: () => _handleAppBackground(),
         onDetach: () => _handleAppBackground(),
       );
@@ -232,9 +232,12 @@ class MpdRemoteService with WidgetsBindingObserver {
     _isAppInBackground = false;
 
     if (_isInitialized) {
+      _statusClient = MpdClient(
+        connectionDetails: MpdConnectionDetails(host: _host!, port: _port!),
+      );
       if (_needsReconnectionOnResume) {
         debugPrint('Attempting deferred reconnection on app resume');
-        _needsReconnectionOnResume = true;
+        _needsReconnectionOnResume = false;
         // Attempt reconnection after a short delay to ensure app is fully resumed
         Timer(const Duration(milliseconds: 1000), () {
           if (!_isAppInBackground && _isInitialized) {
@@ -257,6 +260,11 @@ class MpdRemoteService with WidgetsBindingObserver {
     _stopElapsedTimer();
     _reconnectionTimer?.cancel();
     _reconnectionTimer = null;
+
+    if (_pollingCancellationCompleter != null &&
+        !_pollingCancellationCompleter!.isCompleted) {
+      _pollingCancellationCompleter!.complete();
+    }
 
     // Close connections gracefully but don't set clients to null
     // so we can try to reuse them when resuming
@@ -294,6 +302,7 @@ class MpdRemoteService with WidgetsBindingObserver {
           debugPrint('Connection test successful, resuming operations');
           isConnected.value = true;
           _startStatusPolling();
+          _startElapsedTimer();
 
           // Refresh state after resume
           Future.microtask(() async {
@@ -469,7 +478,18 @@ class MpdRemoteService with WidgetsBindingObserver {
 
     debugPrint('Starting status polling');
     _isPolling = true;
-    Future.microtask(_statusPollingLoop);
+    _pollingCancellationCompleter = Completer<void>();
+    // Future.microtask(_statusPollingLoop);
+    runZoned(() async {
+      try {
+        await Future.any([
+          _statusPollingLoop(),
+          _pollingCancellationCompleter!.future,
+        ]);
+      } catch (e) {
+        debugPrint("an error");
+      }
+    });
   }
 
   /// Main polling loop that listens for MPD subsystem changes
