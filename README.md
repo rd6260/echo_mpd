@@ -29,7 +29,6 @@ A clean, modern, and feature-rich mobile remote for [MPD (Music Player Daemon)](
 ## 📝 TODOs & 🐞 Known Issues
 
 ### 🧩 Features & Improvements
-- 🎨 Design and add a proper app logo  
 - 📱 Add missing screens to complete the UI flow  
 - 🎵 Implement playlist management functionality  
 - 🎨 Develop a consistent theme management system  
