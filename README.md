@@ -18,7 +18,7 @@ A clean, modern, and feature-rich mobile remote for [MPD (Music Player Daemon)](
 
 
 
-## ✨ Features`
+## ✨ Features
 
 - Modern UI with smooth transitions
 - Intuitive browsing by artist, album, genre, and playlist
