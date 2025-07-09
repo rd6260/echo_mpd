@@ -114,9 +114,9 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ValueListenableBuilder(
-                valueListenable: MpdRemoteService.instance.favouriteSongsNumber,
+                valueListenable: MpdRemoteService.instance.favoriteSongList,
                 builder: (context, value, child) => Text(
-                  value == null ? "0" : value.toString(),
+                  value.length.toString(),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 48,

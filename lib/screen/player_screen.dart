@@ -1,5 +1,6 @@
 import 'package:echo_mpd/screen/lyrics_screen.dart';
 import 'package:echo_mpd/service/mpd_remote_service.dart';
+import 'package:echo_mpd/service/settings.dart';
 import 'package:echo_mpd/widgets/album_art_widget.dart';
 import 'package:echo_mpd/widgets/music_progress_slider_widget.dart';
 import 'package:dart_mpd/dart_mpd.dart';
@@ -14,7 +15,6 @@ class PlayerScreen extends StatefulWidget {
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
-  static const favouritesPlaylistName = 'Favourites';
 
   /// Tracks if current song is marked as favourite
   final ValueNotifier<bool> isFavourite = ValueNotifier(false);
@@ -27,13 +27,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   /// Fetch the index of the song in the favourite playlist
   /// if the song is not present in the favourite playlist
   Future<int?> _getIndexInFevourite(MpdSong? song) async {
-    song ??= MpdRemoteService.instance.currentSong.value;
-    MpdClient client = MpdRemoteService.instance.client;
-
-    List<MpdSong> favSongs = await client.listplaylistinfo(
-      favouritesPlaylistName,
-    );
-    int index = favSongs.indexWhere((favSong) => favSong.file == song?.file);
+    int index = MpdRemoteService.instance.favoriteSongList.value.indexWhere((favSong) => favSong.file == song?.file);
 
     // if index is -1 then return null
     return index >= 0 ? index : null;
@@ -54,7 +48,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
       if (!isFavourite.value) {
         // Add to favourites if not already present.
-        await client.playlistadd(favouritesPlaylistName, song.file);
+        await client.playlistadd(Settings.defaultFavoritePlaylistName, song.file);
         isFavourite.value = true;
         debugPrint(
           'Added "${song.title?.join("") ?? "Unknown"}" to favourites',
@@ -69,7 +63,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
         }
 
         // Remove the song at [index] from the playlist.
-        await client.playlistdelete(favouritesPlaylistName, MpdPosition(index));
+        await client.playlistdelete(Settings.defaultFavoritePlaylistName, MpdPosition(index));
         isFavourite.value = false;
         debugPrint(
           'Removed "${song.title?.join("") ?? "Unknown"}" from favourites',

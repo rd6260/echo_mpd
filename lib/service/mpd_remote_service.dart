@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:dart_mpd/dart_mpd.dart';
+import 'package:echo_mpd/service/settings.dart';
 import 'package:flutter/material.dart';
 
 /// A singleton service for managing MPD (Music Player Daemon) connections and operations.
@@ -73,8 +74,8 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// Elapsed time of current song as Duration
   final ValueNotifier<Duration?> elapsed = ValueNotifier(null);
 
-  /// Number of songs in Favourite playlist
-  final ValueNotifier<int?> favouriteSongsNumber = ValueNotifier(null);
+  /// Favourite playlist
+  final ValueNotifier<List<MpdSong>> favoriteSongList = ValueNotifier([]);
 
   // ==========================================
   // PUBLIC API - INITIALIZATION
@@ -161,7 +162,7 @@ class MpdRemoteService with WidgetsBindingObserver {
     isPlaying.dispose();
     currentPlaylist.dispose();
     elapsed.dispose();
-    favouriteSongsNumber.dispose();
+    favoriteSongList.dispose();
 
     debugPrint('MPD Service disposed');
   }
@@ -636,10 +637,7 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// For changes in saved MPD playlist data
   Future<void> refreshStoredPlaylist() async {
     // fetching favourite playlist
-    List favSongList = await _client!.listplaylistinfo("Favourites");
-    if (favouriteSongsNumber.value != favSongList.length) {
-      favouriteSongsNumber.value = favSongList.length;
-    }
+    favoriteSongList.value = await _client!.listplaylistinfo(Settings.defaultFavoritePlaylistName);
   }
 
   // ==========================================
