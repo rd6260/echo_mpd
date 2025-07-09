@@ -1,4 +1,3 @@
-import 'package:dart_mpd/dart_mpd.dart';
 import 'package:echo_mpd/screen/favourite_tracks_screen.dart';
 import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:flutter/material.dart';
@@ -11,36 +10,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  ValueNotifier<List<MpdSong>> favouriteSongsList = ValueNotifier([]);
-
-  void _loadFavouriteSongs() async {
-    try {
-      favouriteSongsList.value = await MpdRemoteService.instance.client
-          .listplaylistinfo("Favourites");
-    } catch (e) {
-      // Handle error gracefully
-      debugPrint('Error loading favourite songs: $e');
-      favouriteSongsList.value = [];
-    }
-  }
-
   void onFavouriteTracksTap() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => FavouriteTracksScreen()),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _loadFavouriteSongs();
-  }
-
-  @override
-  void dispose() {
-    favouriteSongsList.dispose();
-    super.dispose();
   }
 
   @override
@@ -140,9 +114,9 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ValueListenableBuilder(
-                valueListenable: favouriteSongsList,
+                valueListenable: MpdRemoteService.instance.favouriteSongsNumber,
                 builder: (context, value, child) => Text(
-                  value.length.toString(),
+                  value == null ? "0" : value.toString(),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 48,

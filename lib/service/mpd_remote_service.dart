@@ -73,6 +73,9 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// Elapsed time of current song as Duration
   final ValueNotifier<Duration?> elapsed = ValueNotifier(null);
 
+  /// Number of songs in Favourite playlist
+  final ValueNotifier<int?> favouriteSongsNumber = ValueNotifier(null);
+
   // ==========================================
   // PUBLIC API - INITIALIZATION
   // ==========================================
@@ -158,6 +161,7 @@ class MpdRemoteService with WidgetsBindingObserver {
     isPlaying.dispose();
     currentPlaylist.dispose();
     elapsed.dispose();
+    favouriteSongsNumber.dispose();
 
     debugPrint('MPD Service disposed');
   }
@@ -456,6 +460,7 @@ class MpdRemoteService with WidgetsBindingObserver {
       isConnected.value = _client!.connection.isConnected;
       await _updatePlayerStatus();
       await _updateCurrentPlaylist();
+      await refreshStoredPlaylist();
     } catch (e) {
       debugPrint('Failed to initialize state: $e');
       isConnected.value = false;
@@ -557,6 +562,8 @@ class MpdRemoteService with WidgetsBindingObserver {
 
         case MpdSubsystem.update:
         case MpdSubsystem.storedPlaylist:
+          refreshStoredPlaylist();
+          break;
         case MpdSubsystem.partition:
         case MpdSubsystem.sticker:
         case MpdSubsystem.subscription:
@@ -623,6 +630,15 @@ class MpdRemoteService with WidgetsBindingObserver {
     } catch (e) {
       debugPrint('Failed to update player status: $e');
       _handleConnectionError(e);
+    }
+  }
+
+  /// For changes in saved MPD playlist data
+  Future<void> refreshStoredPlaylist() async {
+    // fetching favourite playlist
+    List favSongList = await _client!.listplaylistinfo("Favourites");
+    if (favouriteSongsNumber.value != favSongList.length) {
+      favouriteSongsNumber.value = favSongList.length;
     }
   }
 
