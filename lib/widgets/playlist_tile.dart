@@ -71,7 +71,9 @@ class _PlaylistTileState extends State<PlaylistTile> {
                       : Colors.transparent,
                   border: isPlaying
                       ? Border.all(
-                          color: const Color(Settings.primaryColor).withValues(alpha: 0.4),
+                          color: const Color(
+                            Settings.primaryColor,
+                          ).withValues(alpha: 0.4),
                           width: 1.5,
                         )
                       : null,
@@ -166,73 +168,21 @@ class _PlaylistTileState extends State<PlaylistTile> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    widget.song.title?.join("/") ?? "",
-                                    style: TextStyle(
-                                      color: isPlaying
-                                          ? const Color(Settings.primaryColor)
-                                          : Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: isPlaying
-                                          ? FontWeight.w600
-                                          : FontWeight.w400,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                // Playing animation icon
-                                if (isPlaying)
-                                  Container(
-                                    padding: const EdgeInsets.only(left: 8),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Container(
-                                          width: 3,
-                                          height: 12,
-                                          margin: const EdgeInsets.only(
-                                            right: 2,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: const Color(Settings.primaryColor),
-                                            borderRadius: BorderRadius.circular(
-                                              1,
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          width: 3,
-                                          height: 16,
-                                          margin: const EdgeInsets.only(
-                                            right: 2,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: const Color(Settings.primaryColor),
-                                            borderRadius: BorderRadius.circular(
-                                              1,
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          width: 3,
-                                          height: 10,
-                                          decoration: BoxDecoration(
-                                            color: const Color(Settings.primaryColor),
-                                            borderRadius: BorderRadius.circular(
-                                              1,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                              ],
+                            Text(
+                              widget.song.title?.join("/") ?? "",
+                              style: TextStyle(
+                                color: isPlaying
+                                    ? const Color(Settings.primaryColor)
+                                    : Colors.white,
+                                fontSize: 16,
+                                fontWeight: isPlaying
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 4),
+                            // const SizedBox(height: 4),
                             Text(
                               widget.song.artist?.join("/") ?? "",
                               style: TextStyle(
@@ -241,7 +191,7 @@ class _PlaylistTileState extends State<PlaylistTile> {
                                         Settings.primaryColor,
                                       ).withValues(alpha: 0.9)
                                     : Colors.white70,
-                                fontSize: 14,
+                                fontSize: 12,
                                 fontWeight: isPlaying
                                     ? FontWeight.w500
                                     : FontWeight.normal,
@@ -276,7 +226,9 @@ class _PlaylistTileState extends State<PlaylistTile> {
                         icon: Icon(
                           Icons.more_vert,
                           color: isPlaying
-                              ? const Color(Settings.primaryColor).withValues(alpha: 0.8)
+                              ? const Color(
+                                  Settings.primaryColor,
+                                ).withValues(alpha: 0.8)
                               : Colors.white54,
                           size: 20,
                         ),

@@ -265,25 +265,24 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                               valueListenable:
                                   MpdRemoteService.instance.isPlaying,
                               builder: (context, isPlaying, child) {
-                                return IconButton(
-                                  onPressed: onPlayPause,
-                                  icon: Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: const BoxDecoration(
-                                      color: Color(Settings.primaryColor),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      isPlaying
-                                          ? Icons.pause
-                                          : Icons.play_arrow,
-                                      color: Colors.white,
-                                      size: 20,
+                                return Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: onPlayPause,
+                                    borderRadius: BorderRadius.circular(32),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: Icon(
+                                        isPlaying
+                                            ? Icons.pause
+                                            : Icons.play_arrow,
+                                        color: const Color(
+                                          Settings.primaryColor,
+                                        ),
+                                        size: 24,
+                                      ),
                                     ),
                                   ),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
                                 );
                               },
                             ),
@@ -351,7 +350,9 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                               child: Text(
                                 widget.tabList[index],
                                 style: TextStyle(
-                                  color: isSelected ? const Color(Settings.primaryColor) : Colors.white,
+                                  color: isSelected
+                                      ? const Color(Settings.primaryColor)
+                                      : Colors.white,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   letterSpacing: 0.5,
