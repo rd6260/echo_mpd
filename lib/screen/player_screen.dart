@@ -75,7 +75,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to update favourites: $e'),
-            backgroundColor: Colors.red.shade700,
+            backgroundColor: const Color(Settings.primaryColor),
             duration: const Duration(seconds: 3),
           ),
         );
@@ -176,7 +176,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                               maxLines: 1,
                               style: const TextStyle(
                                 // color: Colors.grey,
-                                color: Color(0xFF314B17),
+                                color: Color(Settings.primaryColor),
                                 fontSize: 16,
                               ),
                             ),
@@ -203,7 +203,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                             onPressed: () => _onFavouritePressed(currentSong),
                             icon: Icon(
                               isFav ? Icons.favorite : Icons.favorite_border,
-                              color: isFav ? Colors.red : Colors.white,
+                              color: isFav ? const Color(Settings.primaryColor) : Colors.white,
                               size: 28,
                             ),
                           );
@@ -309,7 +309,7 @@ class _ControlButtonsWidgetState extends State<ControlButtonsWidget> {
           },
           icon: Icon(
             Icons.shuffle,
-            color: isShuffled ? const Color(0xFF314B17) : Colors.grey,
+            color: isShuffled ? const Color(Settings.primaryColor) : Colors.grey,
             size: 28,
           ),
         ),
@@ -327,7 +327,7 @@ class _ControlButtonsWidgetState extends State<ControlButtonsWidget> {
             width: 80,
             height: 50,
             decoration: BoxDecoration(
-              color: const Color(0xFF314B17),
+              color: const Color(Settings.primaryColor),
               borderRadius: BorderRadius.circular(25),
             ),
             child: IconButton(
@@ -356,7 +356,7 @@ class _ControlButtonsWidgetState extends State<ControlButtonsWidget> {
           },
           icon: Icon(
             Icons.repeat,
-            color: isRepeated ? const Color(0xFF314B17) : Colors.grey,
+            color: isRepeated ? const Color(Settings.primaryColor) : Colors.grey,
             size: 28,
           ),
         ),

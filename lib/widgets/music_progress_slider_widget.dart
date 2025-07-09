@@ -1,4 +1,5 @@
 import 'package:echo_mpd/service/mpd_remote_service.dart';
+import 'package:echo_mpd/service/settings.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -65,10 +66,10 @@ class _ProgressSliderWidgetState extends State<ProgressSliderWidget> {
           onChangeEnd: (normalizedValue) {
             _onSliderChangeEnd(normalizedValue * widget.totalDuration);
           },
-          activeColor: const Color(0xFF314B17), // Red accent color
+          activeColor: const Color(Settings.primaryColor),
           // inactiveColor: Colors.grey[700]!,
-          inactiveColor: const Color(0xFF314B17),
-          thumbColor: const Color(0xFF314B17),
+          inactiveColor: const Color(Settings.primaryColor),
+          thumbColor: const Color(Settings.primaryColor),
           height: 40,
           width: MediaQuery.of(context).size.width - 32,
           waveFrequency:

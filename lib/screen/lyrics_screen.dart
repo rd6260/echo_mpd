@@ -1,4 +1,5 @@
 import 'package:echo_mpd/service/mpd_remote_service.dart';
+import 'package:echo_mpd/service/settings.dart';
 import 'package:echo_mpd/widgets/lyrics_view.dart';
 import 'package:echo_mpd/widgets/music_progress_slider_widget.dart';
 import 'package:flutter/material.dart';
@@ -93,7 +94,7 @@ class _LyricsScreenState extends State<LyricsScreen> {
                   width: 80,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF314B17),
+                    color: const Color(Settings.primaryColor),
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: IconButton(

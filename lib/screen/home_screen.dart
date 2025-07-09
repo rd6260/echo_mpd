@@ -1,5 +1,6 @@
 import 'package:echo_mpd/screen/favourite_tracks_screen.dart';
 import 'package:echo_mpd/service/mpd_remote_service.dart';
+import 'package:echo_mpd/service/settings.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -105,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
       borderRadius: BorderRadius.circular(12),
       child: Ink(
         decoration: BoxDecoration(
-          color: const Color(0xFFDC2626),
+          color: const Color(Settings.primaryColor),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Container(

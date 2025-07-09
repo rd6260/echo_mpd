@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:echo_mpd/screen/player_screen.dart';
+import 'package:echo_mpd/service/settings.dart';
 import 'package:echo_mpd/utils/album_art_helper.dart';
 import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:echo_mpd/widgets/album_art_placeholder.dart';
@@ -270,7 +271,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                                     width: 32,
                                     height: 32,
                                     decoration: const BoxDecoration(
-                                      color: Color(0xFFDC2626),
+                                      color: Color(Settings.primaryColor),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
@@ -350,7 +351,7 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
                               child: Text(
                                 widget.tabList[index],
                                 style: TextStyle(
-                                  color: isSelected ? Colors.red : Colors.white,
+                                  color: isSelected ? const Color(Settings.primaryColor) : Colors.white,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   letterSpacing: 0.5,

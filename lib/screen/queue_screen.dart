@@ -1,5 +1,6 @@
 import 'package:dart_mpd/dart_mpd.dart';
 import 'package:echo_mpd/service/mpd_remote_service.dart';
+import 'package:echo_mpd/service/settings.dart';
 import 'package:echo_mpd/widgets/playlist_tile.dart';
 import 'package:echo_mpd/widgets/song_more_bottom_popup_sheet_widget.dart';
 import 'package:flutter/material.dart';
@@ -150,7 +151,7 @@ class _QueueScreenState extends State<QueueScreen> {
                           IconButton(
                             icon: const Icon(
                               Icons.shuffle,
-                              color: Colors.red,
+                              color: Color(Settings.primaryColor),
                               size: 20,
                             ),
                             onPressed: () {
@@ -161,7 +162,7 @@ class _QueueScreenState extends State<QueueScreen> {
                             width: 48,
                             height: 48,
                             decoration: const BoxDecoration(
-                              color: Colors.red,
+                              color: Color(Settings.primaryColor),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(

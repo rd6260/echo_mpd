@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dart_mpd/dart_mpd.dart';
 import 'package:echo_mpd/service/mpd_remote_service.dart';
+import 'package:echo_mpd/service/settings.dart';
 import 'package:echo_mpd/utils/album_art_helper.dart';
 import 'package:echo_mpd/widgets/album_art_placeholder.dart';
 import 'package:echo_mpd/widgets/conditional_value_listenable_builder.dart';
@@ -70,7 +71,7 @@ class _PlaylistTileState extends State<PlaylistTile> {
                       : Colors.transparent,
                   border: isPlaying
                       ? Border.all(
-                          color: const Color(0xFFFF4444).withValues(alpha: 0.4),
+                          color: const Color(Settings.primaryColor).withValues(alpha: 0.4),
                           width: 1.5,
                         )
                       : null,
@@ -78,7 +79,7 @@ class _PlaylistTileState extends State<PlaylistTile> {
                       ? [
                           BoxShadow(
                             color: const Color(
-                              0xFFFF4444,
+                              Settings.primaryColor,
                             ).withValues(alpha: 0.1),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
@@ -140,10 +141,10 @@ class _PlaylistTileState extends State<PlaylistTile> {
                                   gradient: LinearGradient(
                                     colors: [
                                       const Color(
-                                        0xFFFF4444,
+                                        Settings.primaryColor,
                                       ).withValues(alpha: 0.8),
                                       const Color(
-                                        0xFFFF4444,
+                                        Settings.primaryColor,
                                       ).withValues(alpha: 0.6),
                                     ],
                                     begin: Alignment.topLeft,
@@ -172,7 +173,7 @@ class _PlaylistTileState extends State<PlaylistTile> {
                                     widget.song.title?.join("/") ?? "",
                                     style: TextStyle(
                                       color: isPlaying
-                                          ? const Color(0xFFFF4444)
+                                          ? const Color(Settings.primaryColor)
                                           : Colors.white,
                                       fontSize: 16,
                                       fontWeight: isPlaying
@@ -197,7 +198,7 @@ class _PlaylistTileState extends State<PlaylistTile> {
                                             right: 2,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFFFF4444),
+                                            color: const Color(Settings.primaryColor),
                                             borderRadius: BorderRadius.circular(
                                               1,
                                             ),
@@ -210,7 +211,7 @@ class _PlaylistTileState extends State<PlaylistTile> {
                                             right: 2,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFFFF4444),
+                                            color: const Color(Settings.primaryColor),
                                             borderRadius: BorderRadius.circular(
                                               1,
                                             ),
@@ -220,7 +221,7 @@ class _PlaylistTileState extends State<PlaylistTile> {
                                           width: 3,
                                           height: 10,
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFFFF4444),
+                                            color: const Color(Settings.primaryColor),
                                             borderRadius: BorderRadius.circular(
                                               1,
                                             ),
@@ -237,7 +238,7 @@ class _PlaylistTileState extends State<PlaylistTile> {
                               style: TextStyle(
                                 color: isPlaying
                                     ? const Color(
-                                        0xFFFF4444,
+                                        Settings.primaryColor,
                                       ).withValues(alpha: 0.9)
                                     : Colors.white70,
                                 fontSize: 14,
@@ -260,7 +261,7 @@ class _PlaylistTileState extends State<PlaylistTile> {
                             style: TextStyle(
                               color: isPlaying
                                   ? const Color(
-                                      0xFFFF4444,
+                                      Settings.primaryColor,
                                     ).withValues(alpha: 0.8)
                                   : Colors.white54,
                               fontSize: 12,
@@ -275,7 +276,7 @@ class _PlaylistTileState extends State<PlaylistTile> {
                         icon: Icon(
                           Icons.more_vert,
                           color: isPlaying
-                              ? const Color(0xFFFF4444).withValues(alpha: 0.8)
+                              ? const Color(Settings.primaryColor).withValues(alpha: 0.8)
                               : Colors.white54,
                           size: 20,
                         ),
