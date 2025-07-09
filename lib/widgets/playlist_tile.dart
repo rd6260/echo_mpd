@@ -88,7 +88,7 @@ class _PlaylistTileState extends State<PlaylistTile> {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 8,
+                    vertical: 0,
                     horizontal: 8,
                   ),
                   child: Row(
