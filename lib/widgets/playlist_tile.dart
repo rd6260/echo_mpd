@@ -5,19 +5,14 @@ import 'package:echo_mpd/service/settings.dart';
 import 'package:echo_mpd/utils/album_art_helper.dart';
 import 'package:echo_mpd/widgets/album_art_placeholder.dart';
 import 'package:echo_mpd/widgets/conditional_value_listenable_builder.dart';
+import 'package:echo_mpd/widgets/song_more_bottom_popup_sheet_widget.dart';
 import 'package:flutter/material.dart';
 
 class PlaylistTile extends StatefulWidget {
   final MpdSong song;
   final VoidCallback onTap;
-  final VoidCallback onMorePressed;
 
-  const PlaylistTile({
-    super.key,
-    required this.song,
-    required this.onTap,
-    required this.onMorePressed,
-  });
+  const PlaylistTile({super.key, required this.song, required this.onTap});
 
   @override
   State<PlaylistTile> createState() => _PlaylistTileState();
@@ -48,6 +43,13 @@ class _PlaylistTileState extends State<PlaylistTile> {
   void initState() {
     super.initState();
     isPlaying = isThisSongPlaying(MpdRemoteService.instance.currentSong.value);
+  }
+
+  void onMorePressed() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SongMoreBottomPopupSheetWidget(song: widget.song),
+    );
   }
 
   @override
@@ -232,7 +234,7 @@ class _PlaylistTileState extends State<PlaylistTile> {
                               : Colors.white54,
                           size: 20,
                         ),
-                        onPressed: widget.onMorePressed,
+                        onPressed: onMorePressed,
                       ),
                     ],
                   ),

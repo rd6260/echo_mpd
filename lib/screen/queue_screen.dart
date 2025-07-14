@@ -2,7 +2,6 @@ import 'package:dart_mpd/dart_mpd.dart';
 import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:echo_mpd/service/settings.dart';
 import 'package:echo_mpd/widgets/playlist_tile.dart';
-import 'package:echo_mpd/widgets/song_more_bottom_popup_sheet_widget.dart';
 import 'package:flutter/material.dart';
 
 class QueueScreen extends StatefulWidget {
@@ -98,11 +97,6 @@ class _QueueScreenState extends State<QueueScreen> {
                 return PlaylistTile(
                   song: song,
                   onTap: () => onSongTap(index),
-                  onMorePressed: () => showModalBottomSheet(
-                    context: context,
-                    builder: (context) =>
-                        SongMoreBottomPopupSheetWidget(song: song),
-                  ),
                 );
               }, childCount: queue.length),
             ),
