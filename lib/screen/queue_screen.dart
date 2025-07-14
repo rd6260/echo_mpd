@@ -11,10 +11,14 @@ class QueueScreen extends StatefulWidget {
   State<QueueScreen> createState() => _QueueScreenState();
 }
 
-class _QueueScreenState extends State<QueueScreen> {
+class _QueueScreenState extends State<QueueScreen>
+    with AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<double> _scrollOffset = ValueNotifier(0.0);
   final double _stickyOffset = 60.0; // Height at which the bar becomes sticky
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -33,6 +37,7 @@ class _QueueScreenState extends State<QueueScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       backgroundColor: Colors.black,
       body: ValueListenableBuilder(
@@ -94,10 +99,7 @@ class _QueueScreenState extends State<QueueScreen> {
             SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final song = queue[index];
-                return PlaylistTile(
-                  song: song,
-                  onTap: () => onSongTap(index),
-                );
+                return PlaylistTile(song: song, onTap: () => onSongTap(index));
               }, childCount: queue.length),
             ),
             // Add some bottom padding to prevent overlap with any bottom navigation

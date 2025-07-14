@@ -7,7 +7,6 @@ import 'package:echo_mpd/screen/tracks_screen.dart';
 import 'package:echo_mpd/widgets/bottom_island_widget.dart';
 import 'package:flutter/material.dart';
 
-/// Main screen with custom smooth sliding animation
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -15,12 +14,9 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
-  late AnimationController _slideController;
-  late Animation<double> _slideAnimation;
+class _MainScreenState extends State<MainScreen> {
+  late PageController _pageController;
   final _currentIndexNotifier = ValueNotifier<int>(0);
-  int _previousIndex = 0;
-  bool _isAnimating = false;
 
   final List<String> _tabs = [
     'HOME',
@@ -31,7 +27,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     'ARTISTS',
   ];
 
-  // screens corresponding to each tab
   final List<Widget> _screens = [
     HomeScreen(),
     QueueScreen(),
@@ -44,81 +39,39 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _slideController = AnimationController(
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onTabChanged(int index) {
+    if (_currentIndexNotifier.value == index) return;
+    
+    _currentIndexNotifier.value = index;
+    _pageController.animateToPage(
+      index,
       duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
-    _slideAnimation = CurvedAnimation(
-      parent: _slideController,
       curve: Curves.easeInOut,
     );
   }
 
   @override
-  void dispose() {
-    _slideController.dispose();
-    super.dispose();
-  }
-
-  void _onTabChanged(int index) async {
-    if (_currentIndexNotifier.value == index || _isAnimating) return;
-
-    _isAnimating = true;
-    _previousIndex = _currentIndexNotifier.value;
-
-    _currentIndexNotifier.value = index;
-
-    await _slideController.forward();
-    _slideController.reset();
-    _isAnimating = false;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Stack(
           children: [
-            // Custom sliding pages
-            AnimatedBuilder(
-              animation: _slideAnimation,
-              builder: (context, child) {
-                final currentIndex = _currentIndexNotifier.value;
-                final isMovingRight = currentIndex > _previousIndex;
-                final slideOffset = _slideAnimation.value;
-
-                return Stack(
-                  children: [
-                    // Previous screen sliding out
-                    if (_isAnimating)
-                      Transform.translate(
-                        offset: Offset(
-                          isMovingRight
-                              ? -screenWidth * slideOffset
-                              : screenWidth * slideOffset,
-                          0,
-                        ),
-                        child: _screens[_previousIndex],
-                      ),
-
-                    // Current screen sliding in
-                    Transform.translate(
-                      offset: Offset(
-                        _isAnimating
-                            ? (isMovingRight
-                                  ? screenWidth * (1 - slideOffset)
-                                  : -screenWidth * (1 - slideOffset))
-                            : 0,
-                        0,
-                      ),
-                      child: _screens[currentIndex],
-                    ),
-                  ],
-                );
+            PageView(
+              controller: _pageController,
+              onPageChanged: (index) {
+                _currentIndexNotifier.value = index;
               },
+              children: _screens,
             ),
 
             // Bottom music player island
