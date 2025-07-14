@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:echo_mpd/screen/player_screen.dart';
+import 'package:echo_mpd/screen/settings_screen.dart';
 import 'package:echo_mpd/service/settings.dart';
 import 'package:echo_mpd/utils/album_art_helper.dart';
 import 'package:echo_mpd/service/mpd_remote_service.dart';
@@ -101,7 +102,12 @@ class _BottomIslandWidgetState extends State<BottomIslandWidget>
   }
 
   /// Action when the settings button is pressed
-  void onSettings() {}
+  void onSettings() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SettingsScreen()),
+    );
+  }
 
   /// Action when the search button is pressed
   void onSearch() {}
