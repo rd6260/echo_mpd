@@ -45,61 +45,109 @@ class TrackGroupView extends StatelessWidget {
                 borderRadius: BorderRadiusGeometry.all(Radius.circular(12)),
                 child: SizedBox(height: 130, width: 130, child: artWork),
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      type,
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                    Text(
-                      name,
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
-                    ),
-                    if (artist != null)
-                      Text(
-                        artist!,
-                        style: const TextStyle(
-                          color: Color(Settings.primaryColor),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Center the text content
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              type,
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                              ),
+                            ),
+                            Text(
+                              name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                            if (artist != null)
+                              Text(
+                                artist!,
+                                style: const TextStyle(
+                                  color: Color(Settings.primaryColor),
+                                ),
+                              ),
+                            // Text(year!, style: const TextStyle(color: Colors.white)),
+                            Row(
+                              children: [
+                                if (year != null)
+                                  Text(
+                                    "$year  •  ",
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                Text(
+                                  "${tracks.length.toString()} Tracks  •  ",
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.access_time_rounded,
+                                  color: Colors.grey,
+                                  size: 12,
+                                ),
+                                // SizedBox(width: 2),
+                                Text(
+                                  " ${_totalTime()}",
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                    // Text(year!, style: const TextStyle(color: Colors.white)),
-                    Row(
-                      children: [
-                        if (year != null)
-                          Text(
-                            "$year  •  ",
-                            style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            onPressed: () {},
+                            icon: Icon(Icons.repeat, color: Colors.white),
+                          ),
+                          IconButton(
+                            onPressed: () {},
+                            icon: Icon(Icons.shuffle, color: Colors.white),
+                          ),
+                          SizedBox(width: 8),
+                          GestureDetector(
+                            child: Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                color: Color(Settings.primaryColor),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(12),
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.play_arrow,
+                                color: Colors.white,
+                                size: 18,
+                              ),
                             ),
                           ),
-                        Text(
-                          "${tracks.length.toString()} Tracks  •  ",
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
-                          ),
-                        ),
-                        Icon(
-                          Icons.access_time_rounded,
-                          color: Colors.grey,
-                          size: 12,
-                        ),
-                        // SizedBox(width: 2),
-                        Text(
-                          " ${_totalTime()}",
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
