@@ -1,3 +1,6 @@
+import 'package:echo_mpd/service/mpd_remote_service.dart';
+import 'package:echo_mpd/service/settings.dart';
+import 'package:echo_mpd/widgets/track_group_view.dart';
 import 'package:flutter/material.dart';
 
 class FavouriteTracksScreen extends StatelessWidget {
@@ -12,7 +15,21 @@ class FavouriteTracksScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
       ),
-      body: Text("Favourite Tracks"),
+      body: TrackGroupView(
+        artWork: _buildArtWork(),
+        tracks: MpdRemoteService.instance.favoriteSongList.value,
+        type: 'PLAYLIST',
+        name: 'FAVORITE TRACKS',
+      ),
+    );
+  }
+
+  Widget _buildArtWork() {
+    return Container(
+      decoration: const BoxDecoration(
+        color:  Color(Settings.primaryColor),
+      ),
+      child: const Icon(Icons.music_note, color: Colors.white54, size: 24),
     );
   }
 }
