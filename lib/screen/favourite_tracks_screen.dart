@@ -26,10 +26,29 @@ class FavouriteTracksScreen extends StatelessWidget {
 
   Widget _buildArtWork() {
     return Container(
-      decoration: const BoxDecoration(
-        color:  Color(Settings.primaryColor),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(Settings.primaryColor),
+            Color(Settings.primaryColor).withValues(alpha: 0.8),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Color(Settings.primaryColor).withValues(alpha: 0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: const Icon(Icons.music_note, color: Colors.white54, size: 24),
+      child: Icon(
+        Icons.favorite_rounded,
+        color: Colors.white.withValues(alpha: 0.9),
+        size: 28,
+      ),
     );
   }
 }
