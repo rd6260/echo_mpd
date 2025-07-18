@@ -1,10 +1,32 @@
+import 'package:dart_mpd/dart_mpd.dart';
 import 'package:echo_mpd/service/mpd_remote_service.dart';
 import 'package:echo_mpd/service/settings.dart';
+import 'package:echo_mpd/utils/wait_for_notifier.dart';
 import 'package:echo_mpd/widgets/track_group_view.dart';
 import 'package:flutter/material.dart';
 
 class FavouriteTracksScreen extends StatelessWidget {
   const FavouriteTracksScreen({super.key});
+
+  Future<void> onTrackTap(MpdSong song) async {
+    int index = MpdRemoteService.instance.currentPlaylist.value.indexWhere(
+      (queuedSong) => queuedSong.file == song.file,
+    );
+
+    if (index != -1) {
+      await MpdRemoteService.instance.client.play(index);
+      return;
+    }
+
+    await MpdRemoteService.instance.client.add(song.file);
+    await waitForNotifier(MpdRemoteService.instance.currentPlaylist);
+
+    index = MpdRemoteService.instance.currentPlaylist.value.indexWhere(
+      (queuedSong) => queuedSong.file == song.file,
+    );
+
+    if (index != -1) await MpdRemoteService.instance.client.play(index);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +42,7 @@ class FavouriteTracksScreen extends StatelessWidget {
         tracks: MpdRemoteService.instance.favoriteSongList.value,
         type: 'PLAYLIST',
         name: 'FAVORITE TRACKS',
+        onTrackTap: onTrackTap,
       ),
     );
   }

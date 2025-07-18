@@ -12,6 +12,7 @@ class TrackGroupView extends StatelessWidget {
   final String name;
   final String? artist;
   final String? year;
+  final Function(MpdSong) onTrackTap;
 
   const TrackGroupView({
     super.key,
@@ -21,6 +22,7 @@ class TrackGroupView extends StatelessWidget {
     required this.name,
     this.artist,
     this.year,
+    required this.onTrackTap,
   });
 
   String _totalTime() {
@@ -166,7 +168,7 @@ class TrackGroupView extends StatelessWidget {
             itemCount: tracks.length,
             padding: EdgeInsets.only(top: 16),
             itemBuilder: (context, index) =>
-                PlaylistTile(song: tracks[index], onTap: () {}),
+                PlaylistTile(song: tracks[index], onTap: () => onTrackTap(tracks[index])),
           ),
         ),
       ],
