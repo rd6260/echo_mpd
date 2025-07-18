@@ -15,7 +15,7 @@ class _QueueScreenState extends State<QueueScreen>
     with AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<double> _scrollOffset = ValueNotifier(0.0);
-  final double _stickyOffset = 60.0; // Height at which the bar becomes sticky
+  final double _stickyOffset = 10; // Height at which the bar becomes sticky
 
   @override
   bool get wantKeepAlive => true;
@@ -77,8 +77,8 @@ class _QueueScreenState extends State<QueueScreen>
               child: Container(
                 height: 120.0,
                 color: Colors.black,
-                alignment: Alignment.bottomLeft,
-                padding: const EdgeInsets.only(left: 20, bottom: 20),
+                alignment: Alignment.topLeft,
+                padding: const EdgeInsets.only(top: 20, left: 20, bottom: 20),
                 child: const Text(
                   'Playlist',
                   style: TextStyle(
@@ -90,12 +90,7 @@ class _QueueScreenState extends State<QueueScreen>
               ),
             ),
             // Add space for the floating control bar
-            SliverToBoxAdapter(
-              child: Container(
-                height: 80.0, // Space for the control bar
-                color: Colors.black,
-              ),
-            ),
+            SliverToBoxAdapter(child: SizedBox(height: 30)),
             SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final song = queue[index];
@@ -111,7 +106,7 @@ class _QueueScreenState extends State<QueueScreen>
           valueListenable: _scrollOffset,
           builder: (context, scrollOffset, child) {
             // Calculate the bar position based on scroll offset
-            double barTop = 140.0 - scrollOffset;
+            double barTop = 90 - scrollOffset;
             if (barTop < _stickyOffset) {
               barTop = _stickyOffset;
             }
@@ -121,10 +116,10 @@ class _QueueScreenState extends State<QueueScreen>
               left: 16.0,
               right: 16.0,
               child: Container(
-                height: 60.0,
+                height: 50,
                 decoration: BoxDecoration(
                   color: Colors.grey[900]?.withValues(alpha: 0.95),
-                  borderRadius: BorderRadius.circular(30.0),
+                  borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.3),
@@ -140,26 +135,24 @@ class _QueueScreenState extends State<QueueScreen>
                       child: Icon(Icons.menu, color: Colors.white, size: 20),
                     ),
                     const Spacer(),
-                    Container(
-                      margin: const EdgeInsets.only(right: 8.0),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.shuffle,
-                              color: Color(Settings.primaryColor),
-                              size: 20,
-                            ),
-                            onPressed: () {
-                              // Handle shuffle
-                            },
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.shuffle,
+                            color: Color(Settings.primaryColor),
+                            size: 20,
                           ),
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: const BoxDecoration(
-                              color: Color(Settings.primaryColor),
-                              shape: BoxShape.circle,
+                          onPressed: () {
+                            // Handle shuffle
+                          },
+                        ),
+                        AspectRatio(
+                          aspectRatio: 1,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(Settings.primaryColor),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
                               Icons.play_arrow,
@@ -167,8 +160,8 @@ class _QueueScreenState extends State<QueueScreen>
                               size: 24,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
