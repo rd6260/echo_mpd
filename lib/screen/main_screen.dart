@@ -50,7 +50,7 @@ class _MainScreenState extends State<MainScreen> {
 
   void _onTabChanged(int index) {
     if (_currentIndexNotifier.value == index) return;
-    
+
     _currentIndexNotifier.value = index;
     _pageController.animateToPage(
       index,
@@ -63,28 +63,26 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
-                _currentIndexNotifier.value = index;
-              },
-              children: _screens,
-            ),
+      body: Stack(
+        children: [
+          PageView(
+            controller: _pageController,
+            onPageChanged: (index) {
+              _currentIndexNotifier.value = index;
+            },
+            children: _screens,
+          ),
 
-            // Bottom music player island
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: BottomIslandWidget(
-                tabList: _tabs,
-                currentIndexNotifier: _currentIndexNotifier,
-                onTabChanged: _onTabChanged,
-              ),
+          // Bottom music player island
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: BottomIslandWidget(
+              tabList: _tabs,
+              currentIndexNotifier: _currentIndexNotifier,
+              onTabChanged: _onTabChanged,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

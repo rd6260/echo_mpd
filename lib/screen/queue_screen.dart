@@ -15,7 +15,7 @@ class _QueueScreenState extends State<QueueScreen>
     with AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<double> _scrollOffset = ValueNotifier(0.0);
-  final double _stickyOffset = 10; // Height at which the bar becomes sticky
+  final double _stickyOffset = 40; // Height at which the bar becomes sticky
 
   @override
   bool get wantKeepAlive => true;
@@ -75,10 +75,10 @@ class _QueueScreenState extends State<QueueScreen>
             // Add space for the title at the top
             SliverToBoxAdapter(
               child: Container(
-                height: 120.0,
+                height: 170.0,
                 color: Colors.black,
                 alignment: Alignment.topLeft,
-                padding: const EdgeInsets.only(top: 20, left: 20, bottom: 20),
+                padding: const EdgeInsets.only(top: 80, left: 20, bottom: 20),
                 child: const Text(
                   'Playlist',
                   style: TextStyle(
@@ -106,7 +106,7 @@ class _QueueScreenState extends State<QueueScreen>
           valueListenable: _scrollOffset,
           builder: (context, scrollOffset, child) {
             // Calculate the bar position based on scroll offset
-            double barTop = 90 - scrollOffset;
+            double barTop = 140 - scrollOffset;
             if (barTop < _stickyOffset) {
               barTop = _stickyOffset;
             }
