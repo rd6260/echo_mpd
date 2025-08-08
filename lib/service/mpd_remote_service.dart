@@ -637,7 +637,15 @@ class MpdRemoteService with WidgetsBindingObserver {
   /// For changes in saved MPD playlist data
   Future<void> refreshStoredPlaylist() async {
     // fetching favourite playlist
-    favoriteSongList.value = await _client!.listplaylistinfo(Settings.defaultFavoritePlaylistName);
+    try {
+      favoriteSongList.value = await _client!.listplaylistinfo(
+        Settings.defaultFavoritePlaylistName,
+      );
+    } catch (e) {
+      debugPrint(
+        "Favorite playlist doesn't exist. It will be created when user adds a song to favorite",
+      );
+    }
   }
 
   // ==========================================
